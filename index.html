@@ -84,6 +84,22 @@
     .lb-sep { text-align:center; color:#1e0a40; font-size:.55rem; padding:3px 0; letter-spacing:5px; }
     #lb-footer { padding:5px 6px; font-size:.42rem; color:#220a35; text-align:center; border-top:1px solid #150035; flex-shrink:0; letter-spacing:1px; line-height:1.6; font-family:'Courier New',monospace; }
 
+    /* ── PongCoin Chart ── */
+    #pongcoin-chart { flex-shrink:0; border-top:2px solid #1a0044; background:#040010; display:flex; flex-direction:column; }
+    #pc-hdr { display:flex; justify-content:space-between; align-items:center; padding:3px 6px 1px; }
+    #pc-symbol { font-size:.48rem; color:#5533aa; letter-spacing:1px; font-family:'Courier New',monospace; }
+    #pc-badge { font-size:.42rem; padding:1px 5px; border-radius:3px; font-family:'Courier New',monospace; font-weight:bold; }
+    #pc-badge.up   { background:rgba(0,200,100,.18); color:#00cc66; border:1px solid #00aa44; }
+    #pc-badge.down { background:rgba(200,0,0,.18);   color:#ff4444; border:1px solid #aa0000; }
+    #pc-price-row { display:flex; align-items:baseline; gap:4px; padding:0 6px 2px; }
+    #pc-price     { font-family:'Courier New',monospace; font-size:.85rem; font-weight:bold; }
+    #pc-price.up   { color:#00ff88; text-shadow:0 0 8px #00ff8844; }
+    #pc-price.down { color:#ff4444; text-shadow:0 0 8px #ff444444; }
+    #pc-subprice  { font-family:'Courier New',monospace; font-size:.42rem; color:#2d1a44; }
+    #pongcoin-canvas { display:block; width:100%; flex-shrink:0; }
+    #pc-footer { font-size:.36rem; color:#1a0a30; text-align:center; padding:2px 4px; letter-spacing:1px; font-family:'Courier New',monospace; border-top:1px solid #0d0025; }
+    #pc-volatile { font-size:.44rem; color:#ff6600; text-align:center; padding:1px 4px; font-family:'Comic Sans MS',cursive; animation:badgeShake .5s infinite; }
+
     /* ── Connect overlay ── */
     #connectOverlay {
       position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -444,6 +460,19 @@
     <div id="lb-rankup-msg"></div>
     <div id="lb-list"></div>
     <div id="lb-footer">Live rankings · Updated in real-time<br>Compete vs 10,000,000+ players!<br>🔒 Secured by PongShield™ Pro</div>
+    <div id="pongcoin-chart">
+      <div id="pc-hdr">
+        <span id="pc-symbol">🪙 PONG/USD</span>
+        <span id="pc-badge" class="up">▲ +0.00%</span>
+      </div>
+      <div id="pc-price-row">
+        <span id="pc-price" class="up">$1.0000</span>
+        <span id="pc-subprice">PONGCOIN</span>
+      </div>
+      <canvas id="pongcoin-canvas" width="215" height="90"></canvas>
+      <div id="pc-volatile">⚠️ EXTREME VOLATILITY WARNING</div>
+      <div id="pc-footer">PONG EXCHANGE™ · LIVE DATA · NOT FINANCIAL ADVICE</div>
+    </div>
   </div>
 </div>
 
@@ -647,6 +676,8 @@ function rankUp() {
 new ResizeObserver(()=>{ document.getElementById('leaderboard').style.height=document.getElementById('wrap').offsetHeight+'px'; }).observe(document.getElementById('wrap'));
 document.getElementById('leaderboard').style.height=document.getElementById('wrap').offsetHeight+'px';
 renderLeaderboard();
+// Seed chart with history so it looks active on first open
+setTimeout(()=>{ for(let i=0;i<80;i++) updatePongcoinPrice(); }, 0);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shop UI
@@ -675,7 +706,13 @@ function renderShop() {
   } else {
     el.innerHTML=Object.entries(PACKS).map(([k,packs])=>{
       const v=CURR_INFO[k];
-      return `<div class="pack-section"><div class="pack-hdr" style="color:${v.color}">${v.icon} ${v.name}</div><div class="pack-grid">${packs.map(p=>`<button class="pack-btn" data-pc="${k}" data-pa="${p.a}" data-pu="${p.u}">${p.t?`<span class="pack-tag">${p.t}</span>`:''}<span class="pack-amt" style="color:${v.color}">${v.icon} ${p.a.toLocaleString()}</span><span class="pack-usd">$${p.u}</span></button>`).join('')}</div></div>`;
+      const isCoin = k === 'coins';
+      const priceNote = isCoin ? `<div style="font-size:.44rem;color:#ff8800;font-family:'Comic Sans MS',cursive;text-align:center;margin-bottom:4px">⚠️ Price based on live PONG/USD rate — subject to extreme volatility</div>` : '';
+      return `<div class="pack-section"><div class="pack-hdr" style="color:${v.color}">${v.icon} ${v.name}${isCoin?` <span style="font-size:.5rem;color:#ff6600">📈 $${pongcoinPrice.toFixed(4)}/coin</span>`:''}</div>${priceNote}<div class="pack-grid">${packs.map(p=>{
+        const d = isCoin ? getPongcoinPackDisplay(p.a, p.u) : {amt:p.a, usd:p.u};
+        const tag = isCoin ? '<span class="pack-tag" style="background:#ff6600">VOLATILE!</span>' : (p.t?`<span class="pack-tag">${p.t}</span>`:'');
+        return `<button class="pack-btn" data-pc="${k}" data-pa="${d.amt}" data-pu="${d.usd}">${tag}<span class="pack-amt" style="color:${v.color}">${v.icon} ${d.amt.toLocaleString()}</span><span class="pack-usd">$${d.usd}</span></button>`;
+      }).join('')}</div></div>`;
     }).join('');
     el.querySelectorAll('.pack-btn').forEach(b=>b.addEventListener('click',()=>buyPack(b.dataset.pc,+b.dataset.pa,b.dataset.pu)));
   }
@@ -724,6 +761,101 @@ function buyPack(currency, amount, usd) {
 }
 
 updateWallet();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PongCoin Price Engine
+// ─────────────────────────────────────────────────────────────────────────────
+let pongcoinPrice = 1.0 + (Math.random() - 0.5) * 0.4;
+let pongcoinHistory = [pongcoinPrice];
+let pongcoinMomentum = 0;
+let pongcoinUpdateFrame = 0;
+
+function updatePongcoinPrice() {
+  // Momentum-based random walk with mean reversion and occasional crashes/pumps
+  const meanReversion = (1.0 - pongcoinPrice) * 0.015;
+  const shock = Math.random() < 0.008 ? (Math.random() - 0.4) * 0.6 : 0; // rare big moves
+  pongcoinMomentum = pongcoinMomentum * 0.88 + (Math.random() - 0.5) * 0.06 + meanReversion + shock;
+  pongcoinPrice *= (1 + pongcoinMomentum);
+  pongcoinPrice = Math.max(0.05, Math.min(9.99, pongcoinPrice));
+  pongcoinHistory.push(pongcoinPrice);
+  if (pongcoinHistory.length > 130) pongcoinHistory.shift();
+
+  // Update DOM
+  const prev = pongcoinHistory[Math.max(0, pongcoinHistory.length - 31)];
+  const pct = ((pongcoinPrice - prev) / prev * 100);
+  const isUp = pct >= 0;
+  const priceEl = document.getElementById('pc-price');
+  const badge = document.getElementById('pc-badge');
+  if (priceEl) {
+    priceEl.textContent = '$' + pongcoinPrice.toFixed(4);
+    priceEl.className = isUp ? 'up' : 'down';
+  }
+  if (badge) {
+    badge.textContent = (isUp ? '▲ +' : '▼ ') + pct.toFixed(2) + '%';
+    badge.className = isUp ? 'up' : 'down';
+  }
+  drawPongcoinChart();
+  // Re-render shop packs if open to show updated prices
+  if (document.getElementById('shopModal').classList.contains('open') && shopTab === 'packs') renderShop();
+}
+
+function drawPongcoinChart() {
+  const canvas = document.getElementById('pongcoin-canvas');
+  if (!canvas) return;
+  const rc = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+
+  rc.fillStyle = '#040010'; rc.fillRect(0, 0, w, h);
+
+  // Grid lines
+  rc.strokeStyle = 'rgba(50,0,100,0.4)'; rc.lineWidth = 0.5;
+  for (let y = 0; y < h; y += h/4) { rc.beginPath(); rc.moveTo(0,y); rc.lineTo(w,y); rc.stroke(); }
+  for (let x = 0; x < w; x += w/6) { rc.beginPath(); rc.moveTo(x,0); rc.lineTo(x,h); rc.stroke(); }
+
+  if (pongcoinHistory.length < 2) return;
+  const hist = pongcoinHistory;
+  const minV = Math.min(...hist) * 0.97;
+  const maxV = Math.max(...hist) * 1.03;
+  const range = maxV - minV || 0.01;
+
+  const toX = i => (i / (hist.length - 1)) * w;
+  const toY = v => h - 4 - ((v - minV) / range) * (h - 8);
+
+  const isUp = hist[hist.length-1] >= hist[0];
+  const color = isUp ? '#00ff88' : '#ff4444';
+  const colorFade = isUp ? 'rgba(0,255,136,' : 'rgba(255,68,68,';
+
+  // Area fill
+  const grad = rc.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, colorFade + '0.18)');
+  grad.addColorStop(1, colorFade + '0.02)');
+  rc.beginPath();
+  rc.moveTo(toX(0), h);
+  hist.forEach((v,i) => rc.lineTo(toX(i), toY(v)));
+  rc.lineTo(toX(hist.length-1), h);
+  rc.closePath(); rc.fillStyle = grad; rc.fill();
+
+  // Price line
+  rc.beginPath(); rc.strokeStyle = color; rc.lineWidth = 1.5;
+  rc.shadowColor = color; rc.shadowBlur = 5;
+  hist.forEach((v,i) => i===0 ? rc.moveTo(toX(i),toY(v)) : rc.lineTo(toX(i),toY(v)));
+  rc.stroke(); rc.shadowBlur = 0;
+
+  // Current price dot
+  const lx = toX(hist.length-1), ly = toY(hist[hist.length-1]);
+  rc.beginPath(); rc.arc(lx, ly, 3, 0, Math.PI*2);
+  rc.fillStyle = color; rc.shadowColor = color; rc.shadowBlur = 8; rc.fill(); rc.shadowBlur = 0;
+}
+
+// Helper used by shop rendering
+function getPongcoinPackDisplay(baseAmt, baseUsd) {
+  // Amount you get fluctuates inversely with price (more coins when cheap)
+  const dynamicAmt = Math.max(1, Math.round(baseAmt / pongcoinPrice));
+  // USD price also drifts a bit on its own
+  const usdNoise = 0.85 + Math.random() * 0.3;
+  const dynamicUsd = (parseFloat(baseUsd) * usdNoise).toFixed(2);
+  return { amt: dynamicAmt, usd: dynamicUsd };
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Breaking News Ticker
@@ -1293,6 +1425,9 @@ function updateAmbient(){
 
   // Spin to win
   if(gameActive&&frame>=spinWinSpawnFrame&&document.getElementById('spinWin').style.display!=='block'){ spinUsed=false; document.getElementById('spin-btn').textContent='SPIN NOW!'; document.getElementById('spin-result').textContent=''; document.getElementById('spin-wheel').textContent='🎰'; document.getElementById('spinWin').style.display='block'; spinWinSpawnFrame=frame+9999999; }
+
+  // PongCoin price update every 45 frames
+  if (frame % 45 === 0) updatePongcoinPrice();
 
   // Cat companion meow
   if(saveData.active.companion && gameActive && frame >= nextMeowFrame){ sfxMeow(); nextMeowFrame=frame+240+Math.floor(Math.random()*360); }
