@@ -244,6 +244,93 @@
     #pDetail { font-family:'Comic Sans MS',cursive; font-size:.72rem; color:#55ff99; }
     /* Effect warning overlay on canvas */
     #effectWarning { position:absolute; top:38px; left:50%; transform:translateX(-50%); background:rgba(255,0,0,.85); color:#fff; font-size:.6rem; letter-spacing:2px; padding:3px 10px; border-radius:3px; pointer-events:none; z-index:7; display:none; }
+
+    /* ── Breaking News Ticker ── */
+    #newsTicker { position:absolute; bottom:0; left:0; right:0; height:5%; background:rgba(170,0,0,0.92); display:flex; align-items:center; overflow:hidden; z-index:5; pointer-events:none; border-top:2px solid #ff4400; }
+    #news-label { background:#ff0000; color:#fff; font-family:Impact,sans-serif; font-size:1.4vh; padding:0 8px; white-space:nowrap; flex-shrink:0; height:100%; display:flex; align-items:center; letter-spacing:1px; }
+    #news-scroll-wrap { flex:1; overflow:hidden; position:relative; height:100%; }
+    #news-content { position:absolute; white-space:nowrap; color:#ffff00; font-family:Arial,sans-serif; font-size:1.3vh; font-weight:bold; display:flex; align-items:center; height:100%; }
+
+    /* ── Phone Notifications ── */
+    #notif-stack { position:absolute; top:8%; right:2%; width:38%; display:flex; flex-direction:column; gap:3px; z-index:22; pointer-events:all; overflow:hidden; max-height:55%; }
+    .notif-popup { background:rgba(12,12,28,0.97); border:1px solid #334488; border-radius:7px; padding:5px 7px; display:flex; align-items:center; gap:5px; font-family:Arial,sans-serif; color:#ccd; box-shadow:3px 3px 12px rgba(0,0,0,.8); animation:notifIn .35s ease-out; }
+    .notif-popup.notif-out { animation:notifOut .35s ease-in forwards; }
+    @keyframes notifIn  { 0%{transform:translateX(110%);opacity:0} 100%{transform:translateX(0);opacity:1} }
+    @keyframes notifOut { 0%{transform:translateX(0);opacity:1} 100%{transform:translateX(110%);opacity:0} }
+    .notif-icon { font-size:2vh; flex-shrink:0; }
+    .notif-text { flex:1; overflow:hidden; }
+    .notif-title { font-weight:bold; color:#fff; font-size:1.2vh; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .notif-body  { font-size:1vh; color:#8899bb; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .notif-close { background:none; border:none; color:#556; cursor:pointer; font-size:1.3vh; flex-shrink:0; padding:0 2px; }
+    .notif-close:hover { color:#aaa; }
+
+    /* ── Cookie Consent ── */
+    #cookieBanner { position:absolute; bottom:6%; left:2%; right:2%; background:rgba(18,12,35,0.97); border:1px solid #2a1a55; border-radius:6px; padding:5px 9px; z-index:65; font-family:Arial,sans-serif; font-size:1.1vh; color:#8899cc; display:flex; align-items:center; gap:6px; flex-wrap:wrap; box-shadow:0 0 20px rgba(0,0,0,.9); }
+    #cookieBanner span { flex:1; min-width:0; line-height:1.4; }
+    .cookie-btn { background:linear-gradient(180deg,#2200aa,#160066); border:1px solid #4400cc; border-radius:3px; color:#aa77ff; font-family:Arial,sans-serif; font-size:1vh; padding:3px 7px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+    .cookie-btn-accept { background:linear-gradient(180deg,#008833,#005522); border-color:#00aa44; color:#aaffaa; }
+    .cookie-btn:hover { filter:brightness(1.2); }
+
+    /* ── AFK Overlay ── */
+    #afkOverlay { position:absolute; inset:0; background:rgba(0,0,0,0.88); display:none; flex-direction:column; align-items:center; justify-content:center; z-index:75; gap:6px; backdrop-filter:blur(2px); }
+    #afk-title { font-size:3vh; letter-spacing:3px; color:#ff4444; }
+    #afk-countdown-wrap { font-family:'Courier New',monospace; font-size:1.8vh; color:#888; }
+    #afkCountdown { color:#ff8888; font-size:3.5vh; }
+    #afk-sub { font-family:'Comic Sans MS',cursive; font-size:1.4vh; color:#5566aa; }
+    #afk-btn { background:linear-gradient(180deg,#22ff66,#00cc44); border:none; border-radius:30px; color:#002200; font-family:Impact,sans-serif; font-size:1.4vh; letter-spacing:3px; padding:8px 28px; cursor:pointer; box-shadow:0 4px 0 #005522; margin-top:4px; }
+    #afk-btn:hover { filter:brightness(1.1); }
+
+    /* ── PongBot ── */
+    #pongbot { position:absolute; bottom:9%; left:1%; width:26%; max-width:200px; background:linear-gradient(160deg,#0e0428,#0b1545); border:1px solid #3300aa; border-radius:8px; overflow:hidden; z-index:25; font-family:Arial,sans-serif; box-shadow:0 0 18px rgba(100,0,200,.35); display:none; animation:pbSlideUp .4s ease-out; }
+    @keyframes pbSlideUp { 0%{transform:translateY(40px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+    #pongbot-header { background:linear-gradient(90deg,#1a0040,#3300aa,#1a0040); padding:4px 8px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #4400cc; }
+    #pongbot-header span { font-size:1.3vh; color:#aa88ff; font-weight:bold; }
+    #pongbot-close { background:none; border:none; color:#6633aa; cursor:pointer; font-size:1.3vh; }
+    #pongbot-close:hover { color:#cc99ff; }
+    #pongbot-body { padding:6px; }
+    #pongbot-msg { font-size:1.15vh; color:#ccd; line-height:1.4; margin-bottom:5px; background:rgba(0,0,0,.3); border-radius:4px; padding:5px; border-left:2px solid #3300aa; }
+    #pongbot-opts { display:flex; flex-direction:column; gap:3px; }
+    .pb-opt { background:rgba(50,0,100,.4); border:1px solid #330066; border-radius:4px; color:#aa88ff; font-size:1.05vh; padding:3px 6px; cursor:pointer; text-align:left; font-family:Arial,sans-serif; }
+    .pb-opt:hover { background:rgba(80,0,150,.6); color:#cc99ff; }
+
+    /* ── Retention Corner ── */
+    #retention-corner { position:absolute; bottom:9%; right:1%; width:19%; background:#000; border:2px solid #ff3300; border-radius:4px; z-index:15; overflow:hidden; box-shadow:0 0 14px rgba(255,50,0,.5); }
+    #retentionCanvas { display:block; width:100%; aspect-ratio:16/9; }
+    #retention-label { background:rgba(220,20,0,.9); color:#fff; font-family:Impact,sans-serif; font-size:1vh; text-align:center; padding:2px; letter-spacing:1px; animation:badgeShake .8s infinite; }
+    #retention-close { position:absolute; top:2px; right:3px; background:rgba(0,0,0,.7); border:none; color:#ccc; cursor:pointer; font-size:1.1vh; border-radius:2px; padding:0 3px; line-height:1.4; }
+    #retention-close:hover { color:#fff; background:rgba(200,0,0,.8); }
+
+    /* ── Flash Sale ── */
+    #flashSale { position:absolute; top:30%; left:50%; transform:translateX(-50%); background:linear-gradient(160deg,#1a0000,#330000); border:3px solid #ff4400; border-radius:10px; padding:12px 18px; z-index:70; text-align:center; display:none; box-shadow:0 0 40px rgba(255,68,0,.7); min-width:33%; font-family:Impact,sans-serif; animation:flashPulse 1s ease-in-out infinite alternate; }
+    @keyframes flashPulse { 0%{box-shadow:0 0 30px rgba(255,68,0,.5)} 100%{box-shadow:0 0 60px rgba(255,68,0,.95)} }
+    #flash-close { position:absolute; top:5px; right:7px; background:none; border:none; color:#ff8866; cursor:pointer; font-size:1.5vh; }
+    #flash-close:hover { color:#fff; }
+    #flash-title { font-size:3vh; color:#ff4400; letter-spacing:3px; margin-bottom:2px; }
+    #flash-subtitle { font-size:1.8vh; color:#ffaa66; margin-bottom:5px; }
+    #flash-timer-wrap { font-family:'Courier New',monospace; font-size:1.3vh; color:#888; margin-bottom:7px; }
+    #flashCountdown { color:#ff4400; font-size:2.5vh; }
+    #flash-buy-btn { background:linear-gradient(180deg,#ff6600,#cc3300); border:none; border-radius:20px; color:#fff; font-family:Impact,sans-serif; font-size:1.5vh; letter-spacing:2px; padding:6px 20px; cursor:pointer; box-shadow:0 3px 0 #881100; }
+    #flash-buy-btn:hover { filter:brightness(1.15); }
+
+    /* ── Typing Bubble ── */
+    #typingBubble { position:absolute; bottom:13%; left:50%; transform:translateX(-50%); background:rgba(18,18,38,.92); border:1px solid #334455; border-radius:14px; padding:4px 11px; font-family:Arial,sans-serif; font-size:1.3vh; color:#7788aa; display:none; z-index:18; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,.5); }
+    .typing-dots span { display:inline-block; animation:dotBounce .9s ease-in-out infinite; }
+    .typing-dots span:nth-child(2) { animation-delay:.15s; }
+    .typing-dots span:nth-child(3) { animation-delay:.3s; }
+    @keyframes dotBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+
+    /* ── Ping Bar ── */
+    #pingBar { position:absolute; top:5%; left:50%; transform:translateX(-50%); background:rgba(80,10,0,.92); border:1px solid #cc2200; border-radius:4px; padding:2px 10px; font-family:'Courier New',monospace; font-size:1.1vh; color:#ff6644; display:none; z-index:6; white-space:nowrap; animation:pingPulse 1.2s ease-in-out infinite alternate; }
+    @keyframes pingPulse { 0%{opacity:0.65} 100%{opacity:1} }
+
+    /* ── Spin-to-Win popup ── */
+    #spinWin { position:absolute; top:18%; left:50%; transform:translateX(-50%); background:linear-gradient(160deg,#0a0028,#140055); border:2px solid #6600ff; border-radius:10px; padding:12px 16px; z-index:68; text-align:center; display:none; box-shadow:0 0 30px rgba(100,0,255,.5); min-width:30%; font-family:Impact,sans-serif; }
+    #spinWin-close { position:absolute; top:5px; right:7px; background:none; border:none; color:#6633aa; cursor:pointer; font-size:1.4vh; }
+    #spinWin-close:hover { color:#cc99ff; }
+    #spin-wheel { font-size:4vh; display:block; margin:4px auto; transition:transform .6s cubic-bezier(.17,.67,.35,1.2); }
+    #spin-btn { background:linear-gradient(180deg,#9900ff,#6600cc); border:none; border-radius:20px; color:#fff; font-family:Impact,sans-serif; font-size:1.4vh; letter-spacing:2px; padding:5px 18px; cursor:pointer; margin-top:4px; }
+    #spin-btn:hover { filter:brightness(1.15); }
+    #spin-result { font-size:1.3vh; color:#aa88ff; min-height:1.4em; margin-top:3px; font-family:'Comic Sans MS',cursive; }
   </style>
 </head>
 <body>
@@ -277,6 +364,71 @@
     </div>
 
     <button id="shopBtnFloat">🏪 SHOP</button>
+
+    <!-- Breaking news ticker -->
+    <div id="newsTicker">
+      <span id="news-label">🔴 BREAKING</span>
+      <div id="news-scroll-wrap"><div id="news-content"></div></div>
+    </div>
+
+    <!-- Phone notification stack -->
+    <div id="notif-stack"></div>
+
+    <!-- Cookie consent -->
+    <div id="cookieBanner">
+      <span>🍪 We use 847 types of cookies to track your gameplay, sell your data to our partners, and show personalized ads. By continuing you agree to our <u>94-page cookie policy</u>.</span>
+      <button class="cookie-btn cookie-btn-accept" id="cookie-accept">Accept All</button>
+      <button class="cookie-btn" id="cookie-decline">Decline</button>
+    </div>
+
+    <!-- AFK overlay -->
+    <div id="afkOverlay">
+      <div id="afk-title">⚠️ ARE YOU STILL THERE?</div>
+      <div id="afk-countdown-wrap">Disconnecting in <span id="afkCountdown">30</span>s…</div>
+      <div id="afk-sub">Move your mouse to keep playing!</div>
+      <button id="afk-btn">✔ YES I'M HERE!</button>
+    </div>
+
+    <!-- PongBot chatbot -->
+    <div id="pongbot">
+      <div id="pongbot-header"><span>🤖 PongBot™</span><button id="pongbot-close">✕</button></div>
+      <div id="pongbot-body">
+        <div id="pongbot-msg"></div>
+        <div id="pongbot-opts"></div>
+      </div>
+    </div>
+
+    <!-- Retention corner -->
+    <div id="retention-corner">
+      <button id="retention-close">✕</button>
+      <canvas id="retentionCanvas" width="160" height="90"></canvas>
+      <div id="retention-label">🔥 SATISFYING MOMENTS</div>
+    </div>
+
+    <!-- Flash sale popup -->
+    <div id="flashSale">
+      <button id="flash-close">✕</button>
+      <div id="flash-title">⚡ FLASH SALE!</div>
+      <div id="flash-subtitle">Pro Bundle — 94% OFF!!!</div>
+      <div id="flash-timer-wrap">Ends in: <span id="flashCountdown">120</span>s</div>
+      <button id="flash-buy-btn" id="flash-buy">CLAIM NOW — $0.59!!!</button>
+    </div>
+
+    <!-- Spin to win -->
+    <div id="spinWin">
+      <button id="spinWin-close">✕</button>
+      <div style="font-size:1.6vh;color:#cc99ff;letter-spacing:2px;margin-bottom:3px">🎰 SPIN TO WIN!</div>
+      <span id="spin-wheel">🎰</span>
+      <div style="font-size:1.1vh;color:#5544aa;font-family:'Comic Sans MS',cursive">Spin once per game for FREE REWARDS!</div>
+      <button id="spin-btn">SPIN NOW!</button>
+      <div id="spin-result"></div>
+    </div>
+
+    <!-- Typing bubble -->
+    <div id="typingBubble">Opponent is typing<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span></div>
+
+    <!-- Ping bar -->
+    <div id="pingBar"></div>
   </div>
 
   <!-- Leaderboard -->
@@ -573,6 +725,213 @@ function buyPack(currency, amount, usd) {
 updateWallet();
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Breaking News Ticker
+// ─────────────────────────────────────────────────────────────────────────────
+const NEWS_HEADLINES = [
+  'BREAKING: Local pong player refuses to blink — doctors baffled',
+  'EXCLUSIVE: Man loses house in pong bet — "I thought I had it"',
+  'SCIENTISTS: Playing Pong increases IQ by 400% — Big Pharma HATES this',
+  'URGENT: Pong Masters servers under cyberattack — YOUR DATA MAY BE AT RISK',
+  'TOP 10 PONG TIPS PROS DON\'T WANT YOU TO KNOW — #7 WILL SHOCK YOU',
+  'STOCK ALERT: Pong Masters LLC shares up 10,000% — analysts baffled',
+  'LOCAL HERO: Player defeats AI using only left hand — "It was easy actually"',
+  'ECONOMY: PongCoin surges 9,000% overnight — experts warn "too late to buy"',
+  'REVEALED: The ONE secret top 1% of pong players share — and YOU can learn it',
+  'WARNING: Untreated Pong addiction now classified as medical emergency',
+];
+let tickerOffset = 0;
+(()=>{
+  const el = document.getElementById('news-content');
+  const txt = NEWS_HEADLINES.join('   ◆   ') + '   ◆   ';
+  el.textContent = txt + txt;
+})();
+function updateTicker() {
+  const wrap = document.getElementById('news-scroll-wrap');
+  const el   = document.getElementById('news-content');
+  if (!wrap || !el) return;
+  tickerOffset += 1.1;
+  const half = el.scrollWidth / 2;
+  if (tickerOffset >= half) tickerOffset = 0;
+  el.style.transform = `translateX(${-tickerOffset}px)`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phone Notifications
+// ─────────────────────────────────────────────────────────────────────────────
+const NOTIF_MSGS = [
+  {icon:'🎁', title:'Daily Reward Ready!',    body:'Claim your 50,000 🪙 before it expires!'},
+  {icon:'⚡', title:'FLASH DEAL ENDING SOON', body:'Pro Bundle 90% OFF — only 2:34 remaining!'},
+  {icon:'💬', title:'Friend Request',          body:'xX_PongGod_Xx wants to add you'},
+  {icon:'🏆', title:'Ranked Challenge!',       body:'You have been challenged to a Diamond match!'},
+  {icon:'📈', title:'Rank Update!',            body:'Your rank jumped 50,000 places overnight!'},
+  {icon:'🔥', title:'Friend is LIVE now',      body:'MLG_Paddle420 is streaming — watch!'},
+  {icon:'🎯', title:'Achievement Unlocked',    body:'"Ball Watcher" — stared at ball 1,000 times'},
+  {icon:'💎', title:'Free Gems!',              body:'Mystery donor sent you 5 FREE 💎 GemStones!'},
+  {icon:'⚠️', title:'Security Alert',         body:'New login from Moscow. Was this you?'},
+  {icon:'🛍️', title:'Shop Sale!',             body:'Lucky Aura now 50% off — Today ONLY!!!'},
+  {icon:'👑', title:'VIP Invite!',             body:'You\'ve been selected for our BETA VIP program!'},
+  {icon:'😱', title:'Someone is watching you!',body:'847 players are spectating your match RIGHT NOW'},
+];
+let nextNotifFrame = 240 + Math.floor(Math.random()*300);
+function spawnNotification() {
+  const n = NOTIF_MSGS[Math.floor(Math.random()*NOTIF_MSGS.length)];
+  const el = document.createElement('div');
+  el.className = 'notif-popup';
+  el.innerHTML = `<div class="notif-icon">${n.icon}</div><div class="notif-text"><div class="notif-title">${n.title}</div><div class="notif-body">${n.body}</div></div><button class="notif-close">✕</button>`;
+  document.getElementById('notif-stack').appendChild(el);
+  el.querySelector('.notif-close').addEventListener('click',()=>{ el.classList.add('notif-out'); setTimeout(()=>el.remove(),380); });
+  setTimeout(()=>{ if(el.isConnected){ el.classList.add('notif-out'); setTimeout(()=>el.remove(),380); } }, 5500);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cookie Consent
+// ─────────────────────────────────────────────────────────────────────────────
+let cookieRespawnTimer = 0;
+document.getElementById('cookie-accept').addEventListener('click',()=>{ document.getElementById('cookieBanner').style.display='none'; cookieRespawnTimer=1800; });
+document.getElementById('cookie-decline').addEventListener('click',()=>{
+  const b = document.getElementById('cookieBanner');
+  b.querySelector('span').textContent = '⚠️ You must accept cookies to continue playing. This is non-negotiable. Please reconsider.';
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AFK Detection
+// ─────────────────────────────────────────────────────────────────────────────
+let afkIdleFrames=0, afkOverlayActive=false, afkCountdownVal=30, afkCountdownIv=null;
+function resetAfk(){ afkIdleFrames=0; if(afkOverlayActive) dismissAfkOverlay(); }
+function showAfkOverlay(){ afkOverlayActive=true; afkCountdownVal=30; const o=document.getElementById('afkOverlay'); o.style.display='flex'; document.getElementById('afkCountdown').textContent=30; clearInterval(afkCountdownIv); afkCountdownIv=setInterval(()=>{ afkCountdownVal--; document.getElementById('afkCountdown').textContent=afkCountdownVal; if(afkCountdownVal<=0){ dismissAfkOverlay(); afkIdleFrames=0; } },1000); }
+function dismissAfkOverlay(){ afkOverlayActive=false; document.getElementById('afkOverlay').style.display='none'; clearInterval(afkCountdownIv); }
+document.addEventListener('mousemove', resetAfk);
+document.addEventListener('keydown', resetAfk);
+document.addEventListener('touchstart', resetAfk);
+document.getElementById('afk-btn').addEventListener('click', resetAfk);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PongBot Chatbot
+// ─────────────────────────────────────────────────────────────────────────────
+let pongbotShown=false, pongbotSpawnFrame=1400;
+const PONGBOT_TREE = {
+  msg:"👋 Hey there! I'm PongBot™! Can I help you today?",
+  opts:[
+    {label:"Yes!",next:{msg:"Great! What do you need help with?",opts:[
+      {label:"How do I score?",next:{msg:"Just hit the ball! FYI: SmartPaddle AI™ (20💎) improves win rate by 340%* (*vs players who bought nothing)",opts:[{label:"Thanks!",next:null},{label:"That's a lie",next:{msg:"Our legal team has been notified. Have a wonderful day! 😊",opts:[{label:"OK...",next:null}]}}]}},
+      {label:"Tips for winning?",next:{msg:"Players who spend $9.99+ in our shop WIN 73% more often. It's SCIENCE. 🧪",opts:[{label:"Wow really?",next:{msg:"Yes! Upgrade to VIP today for MAXIMUM performance gains!! 🚀",opts:[{label:"OK sure",next:null},{label:"Never",next:{msg:"Noted. Your rank will reflect this decision. 👀",opts:[{label:"Bye",next:null}]}}]}},{label:"That's obviously fake",next:{msg:"We do not accept negative feedback at this time. Goodbye.",opts:[{label:"OK...",next:null}]}}]}},
+      {label:"Close chat",next:null},
+    ]}},
+    {label:"No thanks",next:{msg:"Are you SURE? I have a FREE gift waiting for you! 🎁",opts:[
+      {label:"OK fine",next:{msg:"Amazing!! Here's your gift! 🎁 (checking account...)",opts:[{label:"Where's the gift?",next:{msg:"Due to high demand your gift is on backorder. Expected delivery: never. Sorry!",opts:[{label:"Of course",next:null}]}}]}},
+      {label:"No really",next:null},
+    ]}},
+    {label:"What are you?",next:{msg:"I'm an AI trained on 847 BILLION pong matches! 🤖 Definitely not just a script running in a browser.",opts:[
+      {label:"Impressive!",next:{msg:"Upgrade to PongBot Pro™ for $4.99/month for 10× more insights! That's less than a coffee!! ☕",opts:[{label:"Maybe later",next:null},{label:"That's too much",next:{msg:"We also have PongBot Ultra™ for $19.99/month if you change your mind!",opts:[{label:"Goodbye",next:null}]}}]}},
+      {label:"I don't believe you",next:{msg:"Your skepticism score has been flagged and may affect future matchmaking. ⚠️",opts:[{label:"That's not real",next:{msg:"Have a great game! 😊",opts:[{label:"OK bye",next:null}]}}]}},
+      {label:"Go away",next:null},
+    ]}},
+  ]
+};
+let pbState = PONGBOT_TREE;
+function renderPongbot() {
+  document.getElementById('pongbot-msg').textContent = pbState.msg;
+  const opts = document.getElementById('pongbot-opts');
+  opts.innerHTML = '';
+  (pbState.opts||[]).forEach(o=>{
+    const b=document.createElement('button'); b.className='pb-opt'; b.textContent=o.label;
+    b.addEventListener('click',()=>{ if(!o.next){closePongbot();}else{pbState=o.next;renderPongbot();} });
+    opts.appendChild(b);
+  });
+}
+function showPongbot(){ pbState=PONGBOT_TREE; document.getElementById('pongbot').style.display='block'; renderPongbot(); }
+function closePongbot(){ document.getElementById('pongbot').style.display='none'; }
+document.getElementById('pongbot-close').addEventListener('click', closePongbot);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Retention Corner Canvas
+// ─────────────────────────────────────────────────────────────────────────────
+const retCanvas = document.getElementById('retentionCanvas');
+const retCtx    = retCanvas ? retCanvas.getContext('2d') : null;
+let retFrame = 0;
+document.getElementById('retention-close').addEventListener('click',()=>document.getElementById('retention-corner').style.display='none');
+function drawRetention(){
+  if(!retCtx)return; retFrame++;
+  const w=retCanvas.width, h=retCanvas.height;
+  retCtx.fillStyle='#000'; retCtx.fillRect(0,0,w,h);
+  for(let i=0;i<10;i++){
+    const ang=(retFrame*0.025+i*Math.PI/5), hue=(retFrame*3+i*36)%360, r=8+i*5;
+    retCtx.save(); retCtx.translate(w/2,h/2); retCtx.rotate(ang);
+    retCtx.strokeStyle=`hsl(${hue},100%,55%)`; retCtx.lineWidth=2; retCtx.shadowColor=`hsl(${hue},100%,55%)`; retCtx.shadowBlur=6;
+    retCtx.beginPath(); retCtx.moveTo(0,0); retCtx.lineTo(0,-r-10); retCtx.stroke();
+    retCtx.beginPath(); retCtx.arc(0,0,r,0,Math.PI*2); retCtx.stroke();
+    retCtx.restore();
+  }
+  // bouncing ball
+  const bx=w/2+Math.sin(retFrame*0.07)*(w/2-8), by=h/2+Math.cos(retFrame*0.09)*(h/2-8);
+  retCtx.fillStyle=`hsl(${(retFrame*5)%360},100%,60%)`; retCtx.shadowColor=`hsl(${(retFrame*5)%360},100%,60%)`; retCtx.shadowBlur=8;
+  retCtx.beginPath(); retCtx.arc(bx,by,5,0,Math.PI*2); retCtx.fill(); retCtx.shadowBlur=0;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Flash Sale
+// ─────────────────────────────────────────────────────────────────────────────
+let flashSaleCountdown=120, flashSaleIv=null, flashSaleSpawnFrame=3200, flashSaleActive=false;
+function showFlashSale(){ flashSaleActive=true; flashSaleCountdown=120; document.getElementById('flashSale').style.display='block'; document.getElementById('flashCountdown').textContent=120; clearInterval(flashSaleIv); flashSaleIv=setInterval(()=>{ flashSaleCountdown--; document.getElementById('flashCountdown').textContent=flashSaleCountdown; if(flashSaleCountdown<=0) dismissFlashSale(); },1000); }
+function dismissFlashSale(){ flashSaleActive=false; document.getElementById('flashSale').style.display='none'; clearInterval(flashSaleIv); flashSaleSpawnFrame=frame+7000+Math.floor(Math.random()*3000); }
+document.getElementById('flash-close').addEventListener('click', dismissFlashSale);
+document.getElementById('flash-buy-btn').addEventListener('click',()=>{ dismissFlashSale(); buyPack('coins',100,'0.59'); });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Spin to Win
+// ─────────────────────────────────────────────────────────────────────────────
+let spinWinSpawnFrame=2200, spinUsed=false;
+const SPIN_SLOTS=['🎰','💎','🪙','⚡','🔥','⭐','🎁','💔'];
+const SPIN_REWARDS=[
+  {msg:'JACKPOT! +500 🪙!',  c:'coins', a:500},
+  {msg:'+25 💎 GemStones!',  c:'gems',  a:25},
+  {msg:'+50 🪙 PongCoins!',  c:'coins', a:50},
+  {msg:'+10 ⚡ ZapCoins!',   c:'zap',   a:10},
+  {msg:'+5 🔥 BlazeTokens!', c:'blaze', a:5},
+  {msg:'+3 ⭐ StarDust!',    c:'dust',  a:3},
+  {msg:'FREE GIFT: +100 🪙!', c:'coins', a:100},
+  {msg:'SORRY — Try again!', c:null,    a:0},
+];
+document.getElementById('spinWin-close').addEventListener('click',()=>{ document.getElementById('spinWin').style.display='none'; spinWinSpawnFrame=frame+8000+Math.floor(Math.random()*4000); });
+document.getElementById('spin-btn').addEventListener('click',()=>{
+  if(spinUsed) return;
+  spinUsed=true;
+  const result=SPIN_REWARDS[Math.floor(Math.random()*SPIN_REWARDS.length)];
+  let spins=0; const iv=setInterval(()=>{
+    document.getElementById('spin-wheel').textContent=SPIN_SLOTS[Math.floor(Math.random()*SPIN_SLOTS.length)];
+    spins++; if(spins>18){ clearInterval(iv); document.getElementById('spin-wheel').textContent=SPIN_SLOTS[Math.floor(Math.random()*SPIN_SLOTS.length)]; document.getElementById('spin-result').textContent=result.msg; if(result.c){ saveData.currencies[result.c]=(saveData.currencies[result.c]??0)+result.a; writeSave(); updateWallet(); } document.getElementById('spin-btn').textContent='SPIN AGAIN (+$1.99)'; }
+  },80);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Emoji Rain (canvas particles)
+// ─────────────────────────────────────────────────────────────────────────────
+const EMOJIS=['🔥','💯','👀','😱','🏆','💰','⚡','🎯','🤑','🔔','👑','💎'];
+let emojiParticles=[], nextEmojiFrame=90;
+function spawnEmojiRain(){
+  for(let i=0;i<4;i++) emojiParticles.push({x:Math.random()*800,y:520,vx:(Math.random()-.5)*1.4,vy:-(1.4+Math.random()*2.2),life:1,decay:.008+Math.random()*.006,size:13+Math.random()*13,emoji:EMOJIS[Math.floor(Math.random()*EMOJIS.length)],angle:0,spin:(Math.random()-.5)*.04});
+}
+function drawEmojiRain(){
+  for(let i=emojiParticles.length-1;i>=0;i--){
+    const p=emojiParticles[i]; p.x+=p.vx; p.y+=p.vy; p.angle+=p.spin; p.life-=p.decay;
+    if(p.life<=0){emojiParticles.splice(i,1);continue;}
+    ctx.save(); ctx.globalAlpha=p.life*.65; ctx.font=`${Math.round(p.size)}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.translate(p.x,p.y); ctx.rotate(p.angle); ctx.fillText(p.emoji,0,0); ctx.globalAlpha=1; ctx.restore();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Typing Bubble
+// ─────────────────────────────────────────────────────────────────────────────
+let typingTimer=0, nextTypingFrame=500+Math.floor(Math.random()*600);
+function showTypingBubble(){ document.getElementById('typingBubble').style.display='block'; typingTimer=220; }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Ping Bar
+// ─────────────────────────────────────────────────────────────────────────────
+const PING_MSGS=['⚠️ CONNECTION UNSTABLE — 847ms ping','⚠️ HIGH LATENCY DETECTED — 1,204ms','⚠️ PACKET LOSS: 34% — reconnecting…','⚠️ SERVER LAG: 623ms — please wait','⚠️ NETWORK ANOMALY — 991ms ping'];
+let pingTimer=0, nextPingFrame=700+Math.floor(Math.random()*600);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Ad Popup System
 // ─────────────────────────────────────────────────────────────────────────────
 const AD_TEMPLATES=[
@@ -767,6 +1126,42 @@ function updateAmbient(){
     if(fullSendFlipTimer>0){fullSendFlipTimer--;if(fullSendFlipTimer===0)fullSendFlipActive=false;}
     if(!fullSendFlipActive&&frame>=nextFullSendFlip){fullSendFlipActive=true;fullSendFlipTimer=90;nextFullSendFlip=frame+2400+Math.floor(Math.random()*1800);}
   } else { fullSendFlipActive=false; }
+
+  // ── New distractions ──
+  // News ticker scroll
+  updateTicker();
+
+  // Phone notifications
+  if(frame>=nextNotifFrame){ spawnNotification(); nextNotifFrame=frame+350+Math.floor(Math.random()*700); }
+
+  // Cookie respawn after 30s
+  if(cookieRespawnTimer>0){ cookieRespawnTimer--; if(cookieRespawnTimer===0){ const b=document.getElementById('cookieBanner'); b.style.display='flex'; b.querySelector('span').textContent='🍪 We use 847 types of cookies to track your gameplay, sell your data to our partners, and show personalized ads. By continuing you agree to our 94-page cookie policy.'; } }
+
+  // AFK detection
+  if(!afkOverlayActive){ afkIdleFrames++; if(afkIdleFrames>=720) showAfkOverlay(); }
+
+  // PongBot spawn after delay
+  if(!pongbotShown&&frame>=pongbotSpawnFrame){ pongbotShown=true; showPongbot(); }
+
+  // Emoji rain (every 90 frames during gameplay)
+  if(gameActive&&frame>=nextEmojiFrame){ spawnEmojiRain(); nextEmojiFrame=frame+90; }
+
+  // Typing bubble
+  if(typingTimer>0){ typingTimer--; if(typingTimer===0) document.getElementById('typingBubble').style.display='none'; }
+  else if(gameActive&&frame>=nextTypingFrame){ showTypingBubble(); nextTypingFrame=frame+500+Math.floor(Math.random()*800); }
+
+  // Ping bar
+  if(pingTimer>0){ pingTimer--; if(pingTimer===0) document.getElementById('pingBar').style.display='none'; }
+  else if(gameActive&&frame>=nextPingFrame){ const pb=document.getElementById('pingBar'); pb.textContent=PING_MSGS[Math.floor(Math.random()*PING_MSGS.length)]; pb.style.display='block'; pingTimer=300+Math.floor(Math.random()*180); nextPingFrame=frame+600+Math.floor(Math.random()*1200); }
+
+  // Flash sale
+  if(!flashSaleActive&&gameActive&&frame>=flashSaleSpawnFrame){ showFlashSale(); }
+
+  // Spin to win
+  if(gameActive&&frame>=spinWinSpawnFrame&&document.getElementById('spinWin').style.display!=='block'){ spinUsed=false; document.getElementById('spin-btn').textContent='SPIN NOW!'; document.getElementById('spin-result').textContent=''; document.getElementById('spin-wheel').textContent='🎰'; document.getElementById('spinWin').style.display='block'; spinWinSpawnFrame=frame+9999999; }
+
+  // Retention canvas
+  drawRetention();
 }
 
 function render(){
@@ -797,6 +1192,7 @@ function render(){
   drawToast();
   drawHeatShield();
   drawFullSendFlash();
+  drawEmojiRain();
   ctx.restore();
   requestAnimationFrame(render);
 }
