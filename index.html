@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PONG MASTERS 🏆 FREE!!!</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: linear-gradient(135deg, #0e0428 0%, #0b1545 55%, #0a1a2e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: Impact, 'Arial Black', sans-serif;
+      color: #fff;
+    }
+
+    /* ── Layout row: game + leaderboard ── */
+    #game-row {
+      display: flex;
+      align-items: flex-start;
+    }
+
+    #wrap {
+      position: relative;
+      aspect-ratio: 8 / 5;
+      width: min(calc(100vw - 220px), 158vh);
+      flex-shrink: 0;
+    }
+
+    canvas { display: block; width: 100%; height: 100%; cursor: none; }
+
+    /* ── Leaderboard panel ── */
+    #leaderboard {
+      width: 215px;
+      flex-shrink: 0;
+      background: linear-gradient(180deg, #060115 0%, #08092a 100%);
+      border-left: 1px solid #1a0a44;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+    }
+
+    #lb-header {
+      background: linear-gradient(90deg, #1a0040, #07001a, #1a0040);
+      color: #FFD700;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      text-align: center;
+      padding: 7px 4px;
+      border-bottom: 1px solid #2a0060;
+      text-shadow: 0 0 10px #FFD70066;
+      flex-shrink: 0;
+    }
+
+    #lb-rank-area {
+      text-align: center;
+      padding: 6px 6px 2px;
+      border-bottom: 1px solid #150035;
+      flex-shrink: 0;
+    }
+    #lb-rank-label {
+      display: block;
+      font-size: 0.48rem;
+      color: #442255;
+      letter-spacing: 2px;
+      margin-bottom: 2px;
+    }
+    #lb-rank {
+      display: block;
+      font-size: 1.05rem;
+      color: #9999ee;
+      text-shadow: 0 0 8px #5555cc55;
+      letter-spacing: 1px;
+    }
+    #lb-rank.rankup { animation: rankFlash 0.7s ease-out forwards; }
+    @keyframes rankFlash {
+      0%   { color: #FFD700; text-shadow: 0 0 22px #FFD700aa; transform: scale(1.12); }
+      100% { color: #9999ee; text-shadow: 0 0 8px #5555cc55;  transform: scale(1);    }
+    }
+
+    #lb-rankup-msg {
+      font-size: 0.52rem;
+      color: #00ff88;
+      letter-spacing: 1px;
+      text-align: center;
+      padding: 2px 4px;
+      min-height: 14px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    #lb-rankup-msg.pop { animation: msgPop 0.4s ease-out; }
+    @keyframes msgPop {
+      0%  { transform: scale(0.7); opacity: 0; }
+      60% { transform: scale(1.1); }
+      100%{ transform: scale(1);   opacity: 1; }
+    }
+
+    #lb-list {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding: 2px 0;
+    }
+    #lb-list::-webkit-scrollbar { display: none; }
+
+    .lb-entry {
+      display: flex;
+      align-items: center;
+      padding: 4px 6px;
+      gap: 4px;
+      border-bottom: 1px solid #0d0025;
+      font-size: 0.58rem;
+    }
+    .lb-entry.is-you {
+      background: rgba(255,215,0,0.07);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 3px;
+      margin: 1px 3px;
+    }
+    .lb-pos       { width: 50px; flex-shrink: 0; color: #443355; font-size: 0.52rem; }
+    .lb-pos.gold  { color: #FFD700; }
+    .lb-pos.silver{ color: #C0C0C0; }
+    .lb-pos.bronze{ color: #CD7F32; }
+    .lb-entry.is-you .lb-pos { color: #FFD700; }
+
+    .lb-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #7788aa; }
+    .lb-entry:nth-child(1) .lb-name { color: #FFD700; }
+    .lb-entry:nth-child(2) .lb-name { color: #C0C0C0; }
+    .lb-entry:nth-child(3) .lb-name { color: #CD7F32; }
+    .lb-entry.is-you .lb-name { color: #FFD700; font-weight: bold; }
+
+    .lb-wins { flex-shrink: 0; color: #334455; font-size: 0.5rem; text-align: right; }
+    .lb-entry.is-you .lb-wins { color: #55ff99; }
+
+    .lb-sep {
+      text-align: center;
+      color: #1e0a40;
+      font-size: 0.55rem;
+      padding: 3px 0;
+      letter-spacing: 5px;
+    }
+
+    #lb-footer {
+      padding: 5px 6px;
+      font-size: 0.42rem;
+      color: #220a35;
+      text-align: center;
+      border-top: 1px solid #150035;
+      flex-shrink: 0;
+      letter-spacing: 1px;
+      line-height: 1.6;
+    }
+
+    /* ── Connect overlay ── */
+    #connectOverlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, rgba(14,4,40,.95) 0%, rgba(11,21,69,.95) 100%);
+      z-index: 20;
+      gap: 10px;
+    }
+    .free-badge {
+      background: #dd2200; color: #ffff00; font-size: .65rem;
+      padding: 4px 16px; border-radius: 30px; border: 1px solid #ff4400;
+      animation: badgeShake .6s infinite; box-shadow: 0 0 18px #ff220044;
+    }
+    @keyframes badgeShake {
+      0%,100% { transform: rotate(-1.5deg) scale(1.03); }
+      50%      { transform: rotate(1.5deg)  scale(.97);  }
+    }
+    .game-title {
+      font-size: 4.2rem; letter-spacing: 5px; line-height: 1;
+      background: linear-gradient(180deg,#ffe566 0%,#ff8800 45%,#FFD700 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; filter: drop-shadow(0 0 22px #FFD70077);
+    }
+    .game-sub {
+      font-family:'Comic Sans MS',cursive; font-size:.68rem; color:#88aaff; letter-spacing:1px;
+    }
+    .stars { font-size: 1rem; letter-spacing: 3px; }
+    .review { font-family:'Comic Sans MS',cursive; font-size:.54rem; color:#5566aa; }
+    .divider { width:220px; height:1px; background:linear-gradient(90deg,transparent,#3344aa66,transparent); margin:2px 0; }
+
+    #ipInput {
+      background: rgba(0,0,50,.65); border: 2px solid #3355cc; border-radius: 10px;
+      color: #ccd8ff; font-family:'Comic Sans MS',cursive; font-size:.95rem;
+      padding: 10px 22px; width: 268px; text-align: center; outline: none;
+      letter-spacing: 2px; box-shadow: 0 0 18px #3355cc44;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    #ipInput:focus { border-color:#6677ff; box-shadow:0 0 28px #6677ff77; }
+    #ipInput::placeholder { color: #334477; }
+
+    #connectBtn {
+      background: linear-gradient(180deg,#22ff66 0%,#00cc44 45%,#008833 100%);
+      border: none; border-radius: 50px; color: #002200;
+      font-family: Impact,sans-serif; font-size: 1.1rem; letter-spacing: 4px;
+      padding: 14px 48px; cursor: pointer;
+      box-shadow: 0 7px 0 #005522, 0 0 30px #00ff4444;
+      transform: translateY(0); transition: transform .08s, box-shadow .08s;
+    }
+    #connectBtn:hover { transform:translateY(-3px); box-shadow:0 10px 0 #005522,0 0 44px #00ff4466; }
+    #connectBtn:active{ transform:translateY(5px);  box-shadow:0 2px 0 #005522; }
+
+    .fine-print { font-family:'Comic Sans MS',cursive; font-size:.42rem; color:#2a3355; text-align:center; max-width:290px; line-height:1.5; }
+
+    #connectStatus { font-family:'Comic Sans MS',cursive; font-size:.68rem; color:#5566aa; letter-spacing:1px; min-height:1em; }
+    #connectStatus.error { color:#ff5555; }
+    #connectStatus.ok    { color:#44ff88; }
+
+    /* ── Wait overlay ── */
+    #waitOverlay {
+      position: absolute; inset: 0; display: none; flex-direction: column;
+      align-items: center; justify-content: center; background: rgba(8,3,28,.9);
+      z-index: 10; gap: 12px; pointer-events: none;
+    }
+    #waitOverlay.show { display: flex; }
+    .rank-badge {
+      background: linear-gradient(135deg,#9a6f00,#ffd700,#9a6f00); color: #1a0800;
+      font-size: .67rem; padding: 5px 18px; border-radius: 5px; letter-spacing: 2px;
+      box-shadow: 0 0 18px #ffd70044;
+    }
+    .wait-title { font-size: 2.1rem; letter-spacing: 5px; color:#fff; }
+    .dots span { display:inline-block; animation: dotUp 1s ease-in-out infinite; }
+    .dots span:nth-child(2) { animation-delay:.2s; }
+    .dots span:nth-child(3) { animation-delay:.4s; }
+    @keyframes dotUp { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+    .matchbar { width:300px; height:10px; background:rgba(0,0,40,.6); border:1px solid #223; border-radius:20px; overflow:hidden; }
+    .matchbar-fill { height:100%; background:linear-gradient(90deg,#0033ff,#00aaff,#00ffcc); border-radius:20px; box-shadow:0 0 10px #00aaffaa; animation:barFill 3.2s ease-in-out infinite; }
+    @keyframes barFill { 0%{width:5%} 65%{width:94%} 80%{width:55%} 100%{width:94%} }
+    .queue-pos { font-family:'Comic Sans MS',cursive; font-size:.6rem; color:#3d4e6e; }
+    #waitSub { font-family:'Comic Sans MS',cursive; font-size:.7rem; color:#5566aa; letter-spacing:2px; }
+
+    /* ── Ad Popups ── */
+    .ad-popup {
+      position: absolute;
+      min-width: 240px; max-width: 268px;
+      font-family: Tahoma, Arial, sans-serif; font-size: 11px; color: #000;
+      z-index: 60; cursor: default; user-select: none;
+      box-shadow: 4px 4px 14px rgba(0,0,0,.85);
+      pointer-events: all;
+    }
+    .ad-titlebar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 3px 4px; cursor: move; color: #fff;
+      font-weight: bold; font-size: 11px; font-family: Tahoma,Arial,sans-serif;
+    }
+    .ad-title-text { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:11px; }
+    .ad-controls { display:flex; gap:2px; flex-shrink:0; }
+    .ad-btn {
+      width:17px; height:15px; background:#c0c0c0; border:1px solid #888;
+      border-top-color:#fff; border-left-color:#fff;
+      font-size:9px; cursor:pointer; color:#000;
+      display:flex; align-items:center; justify-content:center; padding:0; font-family:Arial,sans-serif;
+    }
+    .ad-close-btn:hover { background:#ee0000; color:#fff; border-color:#cc0000; }
+    .ad-body { padding: 12px; text-align: center; }
+    .ad-body p { margin-bottom: 7px; line-height: 1.45; }
+    .ad-action {
+      background: linear-gradient(180deg,#4dac26,#2d7a14); border:1px solid #2a5c13;
+      color:#fff; padding:5px 14px; cursor:pointer; font-weight:bold;
+      font-size:11px; margin-top:4px; border-radius:3px; font-family:Tahoma,Arial,sans-serif;
+    }
+    .ad-action:hover { background:linear-gradient(180deg,#5cbf30,#3d8a1e); }
+    .ad-action-red { background:linear-gradient(180deg,#cc2200,#991500); border-color:#771000; }
+    .ad-action-red:hover { background:linear-gradient(180deg,#dd3300,#aa1900); }
+
+    /* XP Windows style */
+    .ad-windows { background:#c0c0c0; border:2px solid #777; border-top-color:#dfdfdf; border-left-color:#dfdfdf; }
+    .ad-windows .ad-titlebar { background:linear-gradient(90deg,#0a246a 0%,#3a6ea8 60%,#1a4a80 100%); }
+    .ad-windows .ad-body { background:#ececec; }
+
+    /* Prize */
+    .ad-prize { border:3px solid #FFD700; background:#fff; }
+    .ad-prize .ad-titlebar { background:linear-gradient(90deg,#cc8800,#FFD700,#cc8800); color:#000 !important; }
+    .ad-prize .ad-body { background:linear-gradient(180deg,#fffde7,#fff8e1); }
+    .prize-glow {
+      font-size:28px; padding:8px 0 4px;
+      animation: prizeHue 1.5s linear infinite;
+    }
+    @keyframes prizeHue { 0%{filter:hue-rotate(0)} 100%{filter:hue-rotate(360deg)} }
+
+    /* Warning */
+    .ad-warning { border:2px solid #cc0000; background:#fff; }
+    .ad-warning .ad-titlebar { background:linear-gradient(90deg,#990000,#cc0000); }
+    .ad-warning .ad-body { background:#fff0f0; }
+
+    /* Game-style ad */
+    .ad-game { border:2px solid #5500aa; }
+    .ad-game .ad-titlebar { background:linear-gradient(90deg,#3300aa,#6600ff,#3300aa); }
+    .ad-game .ad-body { background:linear-gradient(180deg,#1a0050,#0a0030); color:#aabbff; }
+
+    .fake-progress-wrap { width:100%; height:16px; background:#ddd; border:1px inset #bbb; overflow:hidden; margin:6px 0; }
+    .fake-progress-bar  { height:100%; background:repeating-linear-gradient(90deg,#3a6ea8 0%,#5a9fd8 10px,#3a6ea8 20px); animation:fakeInstall 2.4s ease-in-out infinite alternate; }
+    @keyframes fakeInstall { 0%{width:15%} 100%{width:88%} }
+  </style>
+</head>
+<body>
+<div id="game-row">
+
+  <!-- Game canvas area -->
+  <div id="wrap">
+    <canvas id="canvas" width="800" height="500"></canvas>
+
+    <!-- Connect overlay -->
+    <div id="connectOverlay">
+      <div class="free-badge">⚡ FREE TO PLAY ⚡ LIMITED TIME ⚡</div>
+      <div class="game-title">PONG MASTERS</div>
+      <div class="game-sub">🏆 THE #1 MULTIPLAYER SPORTS GAME OF 2025!!! 🏆</div>
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+      <div class="review">"changed my life" — Mom &nbsp;|&nbsp; 10,000,000+ Downloads!!</div>
+      <div class="divider"></div>
+      <input id="ipInput" type="text" placeholder="Enter Server IP to CLAIM PRIZE" autocomplete="off" spellcheck="false" />
+      <button id="connectBtn">✦ PLAY FREE — NO ADS* ✦</button>
+      <div class="fine-print">*contains ads. in-app purchases available. results may vary.<br>not responsible for addiction, bankruptcy, or relationship damage.</div>
+      <div id="connectStatus"></div>
+    </div>
+
+    <!-- Wait overlay -->
+    <div id="waitOverlay">
+      <div class="rank-badge">💎 DIAMOND III &nbsp;—&nbsp; ELO: 2,847</div>
+      <div class="wait-title">FINDING OPPONENT<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+      <div class="matchbar"><div class="matchbar-fill"></div></div>
+      <div class="queue-pos">Position in queue: 1 of 47,291 players</div>
+      <div id="waitSub">1 / 2 PLAYERS CONNECTED</div>
+    </div>
+  </div>
+
+  <!-- Leaderboard panel (right side) -->
+  <div id="leaderboard">
+    <div id="lb-header">🌍 GLOBAL LEADERBOARD</div>
+    <div id="lb-rank-area">
+      <span id="lb-rank-label">YOUR CURRENT RANK</span>
+      <span id="lb-rank">#—</span>
+    </div>
+    <div id="lb-rankup-msg"></div>
+    <div id="lb-list"></div>
+    <div id="lb-footer">
+      Live rankings · Updated in real-time<br>
+      Compete against 10,000,000+ players!<br>
+      🔒 Secured by PongShield™ Pro
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Constants (must match server)
+// ─────────────────────────────────────────────────────────────────────────────
+const GAME_W        = 800;
+const GAME_H        = 500;
+const PADDLE_W      = 12;
+const PADDLE_H      = 100;
+const PADDLE_MARGIN = 15;
+const BALL_RADIUS   = 8;
+
+const P2_GAME_X    = GAME_W - PADDLE_MARGIN - PADDLE_W; // 773
+const P2_CVS_LEFT  = (P2_GAME_X - 400) * 2;            // 746
+const P2_CVS_WIDTH = PADDLE_W * 2;                      // 24
+
+const BALL_VISIBLE_THRESHOLD = 380;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DOM refs
+// ─────────────────────────────────────────────────────────────────────────────
+const canvas         = document.getElementById('canvas');
+const ctx            = canvas.getContext('2d');
+const connectOverlay = document.getElementById('connectOverlay');
+const waitOverlay    = document.getElementById('waitOverlay');
+const waitSub        = document.getElementById('waitSub');
+const ipInput        = document.getElementById('ipInput');
+const connectBtn     = document.getElementById('connectBtn');
+const connectStatus  = document.getElementById('connectStatus');
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Game state
+// ─────────────────────────────────────────────────────────────────────────────
+let gameState = {
+  ball:    { x: GAME_W / 2, y: GAME_H / 2 },
+  paddles: { p1: { y: 200 }, p2: { y: 200 } },
+  scores:  { p1: 0, p2: 0 },
+  status:  'waiting'
+};
+
+let playerId    = null;
+let playerCount = 0;
+let gameActive  = false;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WebSocket
+// ─────────────────────────────────────────────────────────────────────────────
+let ws             = null;
+let serverIP       = null;
+let reconnectTimer = null;
+
+function setStatus(text, cls = '') {
+  connectStatus.textContent = text;
+  connectStatus.className   = cls;
+}
+function showWait(show, sub = '') {
+  waitOverlay.classList.toggle('show', show);
+  if (sub) waitSub.textContent = sub;
+}
+
+function connect(ip) {
+  clearTimeout(reconnectTimer);
+  if (ws) { ws.onclose = null; ws.close(); }
+  setStatus('Connecting…');
+  ws = new WebSocket(`ws://${ip}:3000`);
+  ws.onopen    = () => setStatus('Connected — waiting for init…', 'ok');
+  ws.onmessage = (e) => { let m; try { m = JSON.parse(e.data); } catch { return; } handleMessage(m); };
+  ws.onerror   = () => setStatus('Connection error.', 'error');
+  ws.onclose   = () => {
+    setStatus('Disconnected — reconnecting in 2 s…', 'error');
+    gameActive = false;
+    showWait(true, 'RECONNECTING…');
+    reconnectTimer = setTimeout(() => connect(serverIP), 2000);
+  };
+}
+
+function handleMessage(msg) {
+  switch (msg.type) {
+    case 'init':
+      playerId = msg.playerId;
+      if (msg.state) gameState = msg.state;
+      connectOverlay.style.display = 'none';
+      setStatus('');
+      showWait(true, '1 / 2 PLAYERS CONNECTED');
+      break;
+    case 'state':
+      if (msg.data) { checkHitEffect(msg.data); gameState = msg.data; }
+      break;
+    case 'start':
+      gameActive = true;
+      showWait(false);
+      break;
+    case 'reset':
+      gameActive = false;
+      if (msg.state) gameState = msg.state;
+      showWait(true, '1 / 2 PLAYERS CONNECTED');
+      break;
+    case 'score':
+      if (msg.scores) { checkScoreEffect(msg.scores); gameState.scores = msg.scores; }
+      break;
+    case 'players':
+      playerCount = msg.count;
+      if (playerCount < 2 && connectOverlay.style.display === 'none')
+        showWait(true, `${playerCount} / 2 PLAYERS CONNECTED`);
+      break;
+    case 'error':
+      setStatus(msg.message || 'Server error', 'error');
+      break;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Paddle input
+// ─────────────────────────────────────────────────────────────────────────────
+let lastSentY = -1;
+
+function sendPaddle(gameY) {
+  const clamped = Math.max(0, Math.min(GAME_H - PADDLE_H, Math.round(gameY)));
+  if (clamped === lastSentY) return;
+  lastSentY = clamped;
+  if (ws && ws.readyState === WebSocket.OPEN)
+    ws.send(JSON.stringify({ type: 'paddle', y: clamped }));
+}
+function canvasYToGame(clientY) {
+  const rect = canvas.getBoundingClientRect();
+  return (clientY - rect.top) * (canvas.height / rect.height) - PADDLE_H / 2;
+}
+
+canvas.addEventListener('mousemove', (e) => { if (!dragState) sendPaddle(canvasYToGame(e.clientY)); });
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  sendPaddle(canvasYToGame(e.touches[0].clientY));
+}, { passive: false });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Connect UI
+// ─────────────────────────────────────────────────────────────────────────────
+connectBtn.addEventListener('click', () => {
+  const ip = ipInput.value.trim();
+  if (!ip) { setStatus('Enter a server IP address.', 'error'); return; }
+  serverIP = ip; connect(ip);
+});
+ipInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') connectBtn.click(); });
+
+const hostParam = new URLSearchParams(location.search).get('host');
+if (hostParam) {
+  ipInput.value = hostParam; serverIP = hostParam;
+  connectOverlay.style.display = 'none';
+  showWait(true, 'CONNECTING…');
+  connect(hostParam);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Leaderboard
+// ─────────────────────────────────────────────────────────────────────────────
+const FAKE_NAMES = [
+  'xX_PongGod_Xx','MLG_Paddle420','ProPlayer2005','SweatyTryhard',
+  'n00bDestroyer99','GigaChad_Pong','BallWhisperer','UltraInstinct_P',
+  'LegitNotCheating','PongOfDuty','NoScopeKing','FlashPong360',
+  'YourDad_Gaming','GrandmasterP','ActuallyBad_lol','WKeyWarrior',
+  'Toxic_Player1','PaddleGod9000','OmegaLUL','CouchWarrior42',
+  'NightmarePaddle','PingPongPrince','SwolePaddle','NotABot_Trust',
+  'EternalPaddle','LaggyButGood','PongChampion22','ControllerKid',
+  'BotSlayer99','MouseMaster_X','QuickPong','TryhardModeOn',
+];
+const TOP_NAMES  = ['xX_PongGod_Xx', 'MLG_Paddle420', 'GigaChad_Pong'];
+const TOP_WINS   = [48291, 45832, 43109];
+
+let playerRank = 1000000 + Math.floor(Math.random() * 8000000);
+let playerWins = 0;
+
+function nameForRank(r) {
+  return FAKE_NAMES[((Math.abs(r * 2654435761) >>> 0)) % FAKE_NAMES.length];
+}
+
+function renderLeaderboard() {
+  document.getElementById('lb-rank').textContent = '#' + playerRank.toLocaleString();
+  let html = '';
+
+  // Top 3
+  ['gold','silver','bronze'].forEach((cls, i) => {
+    html += `<div class="lb-entry">
+      <span class="lb-pos ${cls}">#${i+1}</span>
+      <span class="lb-name">${TOP_NAMES[i]}</span>
+      <span class="lb-wins">${TOP_WINS[i].toLocaleString()}W</span>
+    </div>`;
+  });
+  html += '<div class="lb-sep">· · ·</div>';
+
+  // 3 above, player, 3 below
+  for (let off = -3; off <= 3; off++) {
+    const r = playerRank + off;
+    if (r < 4) continue;
+    if (off === 0) {
+      html += `<div class="lb-entry is-you">
+        <span class="lb-pos">▶ #${r.toLocaleString()}</span>
+        <span class="lb-name">YOU</span>
+        <span class="lb-wins">${playerWins}W</span>
+      </div>`;
+    } else {
+      const relWins = Math.max(0, playerWins + (off < 0
+        ? Math.floor(Math.abs(off) * (0.6 + Math.random() * 0.8) + 0.5)
+        : -Math.floor(off * (0.4 + Math.random() * 0.6) + 0.3)));
+      html += `<div class="lb-entry">
+        <span class="lb-pos">#${r.toLocaleString()}</span>
+        <span class="lb-name">${nameForRank(r)}</span>
+        <span class="lb-wins">${relWins}W</span>
+      </div>`;
+    }
+  }
+
+  document.getElementById('lb-list').innerHTML = html;
+}
+
+function rankUp() {
+  const drop = Math.floor(Math.random() * 70000 + 10000);
+  playerRank  = Math.max(4, playerRank - drop);
+  playerWins++;
+  renderLeaderboard();
+
+  const rankEl = document.getElementById('lb-rank');
+  rankEl.classList.remove('rankup');
+  void rankEl.offsetWidth;
+  rankEl.classList.add('rankup');
+
+  const msg = document.getElementById('lb-rankup-msg');
+  msg.textContent = `▲ +${drop.toLocaleString()} PLACES!`;
+  msg.classList.remove('pop');
+  void msg.offsetWidth;
+  msg.classList.add('pop');
+  clearTimeout(msg._t);
+  msg._t = setTimeout(() => { msg.textContent = ''; msg.classList.remove('pop'); }, 2200);
+}
+
+// Size leaderboard to match canvas height
+function syncLeaderboardHeight() {
+  document.getElementById('leaderboard').style.height = document.getElementById('wrap').offsetHeight + 'px';
+}
+new ResizeObserver(syncLeaderboardHeight).observe(document.getElementById('wrap'));
+syncLeaderboardHeight();
+renderLeaderboard();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Ad Popup System
+// ─────────────────────────────────────────────────────────────────────────────
+const AD_TEMPLATES = [
+  {
+    style: 'windows',
+    title: '⚠️ Windows Security Alert',
+    body: `<p><strong>⚠️ CRITICAL: 3 VIRUSES FOUND!</strong></p>
+           <p>Your personal photos and banking info<br>may already be compromised.</p>
+           <button class="ad-action ad-action-red">REMOVE NOW — FREE</button>`,
+  },
+  {
+    style: 'prize',
+    title: '🎉 CONGRATULATIONS WINNER!!!',
+    body: `<div class="prize-glow">🏆🎁🎊</div>
+           <p>You are our <strong>1,000,000th visitor!</strong></p>
+           <p>You have WON a <strong>FREE iPhone 15 Pro!</strong><br><small>(act within 60 seconds)</small></p>
+           <button class="ad-action">CLAIM YOUR PRIZE →</button>`,
+  },
+  {
+    style: 'game',
+    title: '🏓 PONG PRO MAX — INSTALLING...',
+    body: `<p style="color:#aabbff;font-size:12px;font-weight:bold">Installing Pong Pro Max v4.2...</p>
+           <div class="fake-progress-wrap"><div class="fake-progress-bar"></div></div>
+           <p class="install-pct" style="color:#6688aa;font-size:10px">Downloading assets... 12%</p>
+           <button class="ad-action" style="background:linear-gradient(180deg,#6600ff,#4400aa);border-color:#3300aa;margin-top:6px">OK</button>`,
+  },
+  {
+    style: 'warning',
+    title: '🔴 NETWORK SECURITY WARNING',
+    body: `<p><strong style="color:#cc0000;font-size:13px">YOUR IP IS EXPOSED!</strong></p>
+           <p>Your address <strong>127.0.0.1</strong> is visible<br>to hackers RIGHT NOW.</p>
+           <button class="ad-action ad-action-red">PROTECT MY IP — FREE</button>`,
+  },
+  {
+    style: 'windows',
+    title: '📦 New Message (1)',
+    body: `<p>Hi! You have been selected for our<br><strong>FREE Pong Coaching Program</strong>!</p>
+           <p style="font-size:10px;color:#666">Only 3 spots left at your skill level.</p>
+           <button class="ad-action">OPEN MESSAGE</button>`,
+  },
+];
+
+let activeAds  = [];
+let dragState  = null;
+let nextAdFrame = 1200 + Math.floor(Math.random() * 1200);
+
+function spawnAd() {
+  if (activeAds.length >= 2) return;
+  const t    = AD_TEMPLATES[Math.floor(Math.random() * AD_TEMPLATES.length)];
+  const wrap = document.getElementById('wrap');
+  const ww   = wrap.offsetWidth, wh = wrap.offsetHeight;
+  const adW  = 260, adH = 190;
+
+  const popup = document.createElement('div');
+  popup.className = `ad-popup ad-${t.style}`;
+  popup.style.left = Math.max(10, Math.floor(10 + Math.random() * Math.max(10, ww - adW - 20))) + 'px';
+  popup.style.top  = Math.max(55, Math.floor(55 + Math.random() * Math.max(10, wh - adH - 70))) + 'px';
+  popup.style.zIndex = 60 + activeAds.length;
+
+  popup.innerHTML = `
+    <div class="ad-titlebar">
+      <span class="ad-title-text">${t.title}</span>
+      <div class="ad-controls">
+        <button class="ad-btn ad-min-btn">_</button>
+        <button class="ad-btn ad-close-btn">✕</button>
+      </div>
+    </div>
+    <div class="ad-body">${t.body}</div>`;
+
+  wrap.appendChild(popup);
+  activeAds.push(popup);
+
+  // If install ad, animate the percentage
+  if (t.style === 'game') {
+    const pctEl = popup.querySelector('.install-pct');
+    let pct = 12;
+    const iv = setInterval(() => {
+      if (!popup.isConnected) { clearInterval(iv); return; }
+      pct = Math.min(99, pct + Math.floor(Math.random() * 4 + 1));
+      pctEl.textContent = pct < 99 ? `Downloading assets... ${pct}%` : 'Download complete! Installing...';
+    }, 700);
+  }
+
+  popup.querySelector('.ad-close-btn').addEventListener('click', (e) => {
+    e.stopPropagation(); removeAd(popup);
+  });
+
+  const action = popup.querySelector('.ad-action');
+  if (action) action.addEventListener('click', (e) => {
+    e.stopPropagation();
+    removeAd(popup);
+    if (Math.random() > 0.4) setTimeout(spawnAd, 600); // clicking ads spawns more
+  });
+
+  const titlebar = popup.querySelector('.ad-titlebar');
+  titlebar.addEventListener('mousedown', (e) => {
+    if (e.target.classList.contains('ad-btn')) return;
+    const rect = popup.getBoundingClientRect();
+    dragState  = { popup, ox: e.clientX - rect.left, oy: e.clientY - rect.top };
+    e.preventDefault();
+  });
+}
+
+function removeAd(popup) {
+  popup.remove();
+  activeAds = activeAds.filter(a => a !== popup);
+}
+
+document.addEventListener('mousemove', (e) => {
+  if (!dragState) return;
+  const wrap  = document.getElementById('wrap');
+  const wr    = wrap.getBoundingClientRect();
+  const pw    = dragState.popup.offsetWidth;
+  const ph    = dragState.popup.offsetHeight;
+  dragState.popup.style.left = Math.max(0, Math.min(wr.width  - pw, e.clientX - wr.left - dragState.ox)) + 'px';
+  dragState.popup.style.top  = Math.max(0, Math.min(wr.height - ph, e.clientY - wr.top  - dragState.oy)) + 'px';
+});
+document.addEventListener('mouseup', () => { dragState = null; });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Game effects state
+// ─────────────────────────────────────────────────────────────────────────────
+const HIT_TEXTS = [
+  'OMG!!','IMPOSSIBLE!!','NO WAY!!','SUBSCRIBE!!',
+  'GONE WRONG!!','GONE VIRAL!','YOU WON\'T\nBELIEVE THIS',
+  'HOW?!?!','100% REAL!!','NOT CLICKBAIT!','WATCH THIS!!',
+  'UNBELIEVABLE','LIKE & SUB!!','😱 INSANE!!',
+];
+const TOASTS = [
+  '🎁 FREE POWER-UP AVAILABLE! TAP TO CLAIM',
+  '💰 DAILY BONUS READY! DON\'T MISS OUT!!!',
+  '🔥 HOT STREAK! YOU\'RE ON FIRE!!!',
+  '⚡ LIMITED OFFER: VIP FOR 99% OFF TODAY ONLY',
+  '🏆 YOU ARE RANKED #1 IN YOUR REGION!!!',
+  '💎 EXCLUSIVE PADDLE SKIN UNLOCKED — CLAIM NOW',
+  '👑 SOMEONE IS WATCHING YOUR GAME LIVE!!!',
+];
+
+let frame       = 0;
+let prevBallX   = GAME_W / 2;
+let prevScores  = { p1: 0, p2: 0 };
+let viewerCount = 247;
+let viewerTimer = 0;
+let toastTimer  = 0;
+let toastText   = '';
+let nextToast   = 600 + Math.floor(Math.random() * 600);
+let hit         = { on: false, timer: 0, x: 0, y: 0, text: '' };
+let scoreEff    = { on: false, timer: 0, win: true };
+let coins       = [];
+
+function checkHitEffect(ns) {
+  const bx = ns.ball?.x ?? GAME_W / 2;
+  const by = ns.ball?.y ?? GAME_H / 2;
+  const py = ns.paddles?.p2?.y ?? 200;
+  if (prevBallX > 680 && bx < prevBallX && bx > 400 && by > py - 20 && by < py + PADDLE_H + 20) {
+    const pos = toCanvas(bx, by);
+    hit = { on: true, timer: 90, x: pos.x, y: pos.y, text: HIT_TEXTS[Math.floor(Math.random() * HIT_TEXTS.length)] };
+  }
+  prevBallX = bx;
+}
+
+function checkScoreEffect(scores) {
+  if (scores.p2 > prevScores.p2) { spawnScoreEffect(true);  rankUp(); }
+  if (scores.p1 > prevScores.p1) {  spawnScoreEffect(false); }
+  prevScores = { ...scores };
+}
+
+function spawnScoreEffect(win) {
+  scoreEff = { on: true, timer: 130, win };
+  const cx = win ? 640 : 160;
+  for (let i = 0; i < 28; i++) {
+    coins.push({ x: cx + (Math.random()-.5)*90, y:55, vx:(Math.random()-.5)*8, vy:-(Math.random()*6+2), life:1, size:Math.random()*7+5 });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Coordinate transform
+// ─────────────────────────────────────────────────────────────────────────────
+function toCanvas(gameX, gameY) { return { x: (gameX - 400) * 2, y: gameY }; }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Draw helpers
+// ─────────────────────────────────────────────────────────────────────────────
+function outlineText(text, x, y, fill, stroke, size) {
+  ctx.save();
+  ctx.font = `900 ${size}px Impact,"Arial Black",sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.lineWidth = Math.max(3, size / 5.5); ctx.lineJoin = 'round';
+  ctx.strokeStyle = stroke; ctx.strokeText(text, x, y);
+  ctx.fillStyle   = fill;   ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+function arrow(fx, fy, tx, ty, color) {
+  const ang = Math.atan2(ty-fy, tx-fx), head = 16;
+  ctx.save();
+  ctx.strokeStyle = color; ctx.fillStyle = color;
+  ctx.lineWidth = 5; ctx.lineCap = 'round';
+  ctx.shadowColor = color; ctx.shadowBlur = 12;
+  ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(tx-Math.cos(ang)*head, ty-Math.sin(ang)*head); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(tx,ty);
+  ctx.lineTo(tx-head*Math.cos(ang-Math.PI/6), ty-head*Math.sin(ang-Math.PI/6));
+  ctx.lineTo(tx-head*Math.cos(ang+Math.PI/6), ty-head*Math.sin(ang+Math.PI/6));
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Canvas draw functions
+// ─────────────────────────────────────────────────────────────────────────────
+function drawBackground() {
+  const bg = ctx.createLinearGradient(0,0,800,500);
+  bg.addColorStop(0,'#08021e'); bg.addColorStop(.5,'#0b1140'); bg.addColorStop(1,'#08172a');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,800,500);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(60,80,255,0.05)'; ctx.lineWidth = 1;
+  for (let x=0;x<=800;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,500);ctx.stroke();}
+  for (let y=0;y<=500;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(800,y);ctx.stroke();}
+  ctx.restore();
+  const fl=ctx.createLinearGradient(0,430,0,500);
+  fl.addColorStop(0,'transparent'); fl.addColorStop(1,'rgba(0,80,255,0.06)');
+  ctx.fillStyle=fl; ctx.fillRect(0,430,800,70);
+}
+
+function drawNet() {
+  ctx.save();
+  ctx.strokeStyle='rgba(0,200,255,0.28)'; ctx.lineWidth=3; ctx.setLineDash([14,10]);
+  ctx.shadowColor='#00ccff'; ctx.shadowBlur=12;
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,500); ctx.stroke();
+  ctx.restore();
+}
+
+function drawCenterLine() {
+  ctx.save();
+  ctx.strokeStyle='rgba(80,100,255,0.07)'; ctx.lineWidth=1; ctx.setLineDash([4,10]);
+  ctx.beginPath(); ctx.moveTo(400,0); ctx.lineTo(400,500); ctx.stroke();
+  ctx.restore();
+}
+
+function drawLiveBar() {
+  const p = 0.55+0.45*Math.sin(frame*0.11);
+  ctx.save();
+  ctx.fillStyle=`rgba(255,0,0,${p})`; ctx.shadowColor='#ff0000'; ctx.shadowBlur=10*p;
+  ctx.beginPath(); ctx.arc(18,17,5,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur=0; ctx.font='bold 10px Arial,sans-serif'; ctx.fillStyle='#fff'; ctx.textBaseline='middle';
+  ctx.fillText('LIVE',28,17);
+  ctx.font='9px Arial,sans-serif'; ctx.fillStyle='rgba(255,255,255,0.4)';
+  ctx.fillText(`👁 ${viewerCount.toLocaleString()} watching`,18,30);
+  ctx.restore();
+}
+
+function drawSubscribeBtn() {
+  const p=0.65+0.35*Math.sin(frame*0.14+2);
+  const bw=108,bh=22,bx=800-bw-8,by=8;
+  ctx.save();
+  ctx.shadowColor='#ff0000'; ctx.shadowBlur=10*p;
+  ctx.fillStyle=`rgb(${Math.floor(170+60*p)},0,0)`;
+  ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,5); ctx.fill();
+  ctx.shadowBlur=0; ctx.font='bold 9px Arial,sans-serif'; ctx.fillStyle='#fff';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('🔔 SUBSCRIBE',bx+bw/2,by+bh/2);
+  ctx.restore();
+}
+
+function drawScores() {
+  const {p1,p2}=gameState.scores;
+  ctx.save(); ctx.textAlign='center';
+  ctx.font='900 36px Impact,sans-serif'; ctx.fillStyle='rgba(255,255,255,0.18)';
+  ctx.fillText(p1??0,160,54);
+  ctx.shadowColor='#FFD700'; ctx.shadowBlur=20;
+  ctx.fillStyle='#FFD700'; ctx.strokeStyle='#884400'; ctx.lineWidth=2; ctx.lineJoin='round';
+  ctx.strokeText(`💰 ${p2??0}`,640,54); ctx.fillText(`💰 ${p2??0}`,640,54);
+  ctx.restore();
+}
+
+function drawLevelBar() {
+  const bw=300,bh=8,bx=(800-bw)/2,by=487;
+  ctx.save();
+  ctx.fillStyle='rgba(0,0,30,0.55)';
+  ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,4); ctx.fill();
+  const fill=ctx.createLinearGradient(bx,0,bx+bw,0);
+  fill.addColorStop(0,'#0033ff'); fill.addColorStop(.5,'#00aaff'); fill.addColorStop(1,'#00ffcc');
+  ctx.fillStyle=fill; ctx.shadowColor='#00aaffaa'; ctx.shadowBlur=6;
+  ctx.beginPath(); ctx.roundRect(bx,by,bw*0.72,bh,4); ctx.fill();
+  ctx.shadowBlur=0; ctx.font='8px Arial,sans-serif'; ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('LVL 42  ▓▓▓▓▓▓▓░░░  72%  →  LVL 43',400,by-2);
+  ctx.restore();
+}
+
+function drawPaddle() {
+  const py=gameState.paddles?.p2?.y??200, hue=(frame*2)%360;
+  ctx.save();
+  ctx.shadowColor=`hsl(${hue},100%,55%)`; ctx.shadowBlur=22;
+  ctx.fillStyle=`hsl(${hue},100%,45%)`;
+  ctx.fillRect(P2_CVS_LEFT,py,P2_CVS_WIDTH,PADDLE_H);
+  ctx.shadowBlur=0; ctx.fillStyle='rgba(255,255,255,0.32)';
+  ctx.fillRect(P2_CVS_LEFT+4,py+8,P2_CVS_WIDTH-8,PADDLE_H-16);
+  const bounce=Math.sin(frame*0.12)*3;
+  outlineText('◀ YOU',P2_CVS_LEFT-36,py+PADDLE_H/2+bounce,'#ffffff','rgba(0,0,0,0.7)',11);
+  ctx.restore();
+}
+
+function drawBall() {
+  const bx=gameState.ball?.x??GAME_W/2, by=gameState.ball?.y??GAME_H/2;
+  if (bx<BALL_VISIBLE_THRESHOLD) return;
+  const pos=toCanvas(bx,by), hue=(frame*4+40)%360, r=BALL_RADIUS+3;
+  const grd=ctx.createRadialGradient(pos.x-3,pos.y-3,1,pos.x,pos.y,r);
+  grd.addColorStop(0,'#fff'); grd.addColorStop(.3,`hsl(${hue},100%,70%)`); grd.addColorStop(1,`hsl(${hue},100%,35%)`);
+  ctx.save();
+  ctx.shadowColor=`hsl(${hue},100%,60%)`; ctx.shadowBlur=26;
+  ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(pos.x,pos.y,r,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur=0; ctx.fillStyle='rgba(255,255,255,0.5)';
+  ctx.beginPath(); ctx.arc(pos.x-3,pos.y-3,3,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+function drawHitEffect() {
+  if (!hit.on) return;
+  const t=hit.timer/90, cx=hit.x, cy=hit.y, r=44+(1-t)*14;
+  ctx.save();
+  ctx.globalAlpha=t*t; ctx.strokeStyle='#ff0000'; ctx.lineWidth=6;
+  ctx.shadowColor='#ff0000'; ctx.shadowBlur=20;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  ctx.globalAlpha=t*t*0.35; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.arc(cx,cy,r+14,0,Math.PI*2); ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.globalAlpha=Math.min(1,t*2.5);
+  const d=r+36;
+  arrow(cx-d-30,cy,      cx-d,    cy,    '#ff0000');
+  arrow(cx,     cy-d-30, cx,      cy-d,  '#ff0000');
+  arrow(cx,     cy+d+30, cx,      cy+d,  '#ff0000');
+  ctx.globalAlpha=Math.min(1,t*2);
+  hit.text.split('\n').forEach((line,i,arr) => {
+    outlineText(line, cx, cy-r-18-(arr.length-1-i)*28, '#ffff00','#000000',24);
+  });
+  ctx.globalAlpha=1; ctx.restore();
+  hit.timer--;
+  if (hit.timer<=0) hit.on=false;
+}
+
+function drawScoreEffect() {
+  if (!scoreEff.on) return;
+  const t=scoreEff.timer/130, cx=scoreEff.win?640:160;
+  ctx.save(); ctx.globalAlpha=Math.min(1,t*2.2);
+  if (scoreEff.win) {
+    outlineText('POINT!!!',   cx,120,'#FFD700','#000000',40);
+    outlineText('+500 COINS!',cx,165,'#00ff88','#003300',20);
+    outlineText('ACHIEVEMENT UNLOCKED',cx,195,'#aaaaff','#000033',12);
+  } else {
+    outlineText('OPPONENT SCORED',    cx,120,'#ff4444','#000000',28);
+    outlineText('BUY PREMIUM TO WIN!',cx,160,'#ffaa00','#442200',16);
+    outlineText('99¢/month — LIMITED OFFER',cx,184,'#888','#000',10);
+  }
+  ctx.globalAlpha=1; ctx.restore();
+  scoreEff.timer--;
+  if (scoreEff.timer<=0) scoreEff.on=false;
+}
+
+function drawCoins() {
+  for (let i=coins.length-1;i>=0;i--) {
+    const c=coins[i];
+    c.x+=c.vx; c.y+=c.vy; c.vy+=0.3; c.life-=0.02;
+    if (c.life<=0){coins.splice(i,1);continue;}
+    ctx.save();
+    ctx.globalAlpha=c.life; ctx.shadowColor='#FFD700'; ctx.shadowBlur=8;
+    ctx.fillStyle='#FFD700'; ctx.beginPath(); ctx.arc(c.x,c.y,c.size,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#664400'; ctx.font=`bold ${Math.round(c.size*1.4)}px serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('$',c.x,c.y);
+    ctx.globalAlpha=1; ctx.restore();
+  }
+}
+
+function drawToast() {
+  if (toastTimer<=0) return;
+  const alpha=Math.min(1,toastTimer/18)*Math.min(1,toastTimer/18);
+  const tw=300,th=30,tx=(800-tw)/2,ty=455;
+  ctx.save(); ctx.globalAlpha=alpha;
+  ctx.fillStyle='rgba(0,15,50,0.9)'; ctx.strokeStyle='#00aaff';
+  ctx.lineWidth=1.5; ctx.shadowColor='#00aaffaa'; ctx.shadowBlur=10;
+  ctx.beginPath(); ctx.roundRect(tx,ty,tw,th,6); ctx.fill(); ctx.stroke();
+  ctx.shadowBlur=0; ctx.font='10px Arial,sans-serif'; ctx.fillStyle='#99ccff';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(toastText,tx+tw/2,ty+th/2);
+  ctx.globalAlpha=1; ctx.restore();
+  toastTimer--;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main loop
+// ─────────────────────────────────────────────────────────────────────────────
+function updateAmbient() {
+  frame++;
+  if (++viewerTimer>80){ viewerCount+=Math.floor((Math.random()-.44)*6); viewerCount=Math.max(80,viewerCount); viewerTimer=0; }
+  if (toastTimer<=0 && frame>=nextToast){ toastText=TOASTS[Math.floor(Math.random()*TOASTS.length)]; toastTimer=120; nextToast=frame+700+Math.floor(Math.random()*700); }
+  if (frame>=nextAdFrame && gameActive){ spawnAd(); nextAdFrame=frame+1500+Math.floor(Math.random()*1800); }
+}
+
+function render() {
+  updateAmbient();
+  drawBackground();
+  drawCenterLine();
+  drawNet();
+  drawLiveBar();
+  drawSubscribeBtn();
+  drawScores();
+  drawLevelBar();
+  drawPaddle();
+  drawBall();
+  drawCoins();
+  drawHitEffect();
+  drawScoreEffect();
+  drawToast();
+  requestAnimationFrame(render);
+}
+
+render();
+</script>
+</body>
+</html>
