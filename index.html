@@ -636,6 +636,7 @@ function renderLeaderboard() {
 }
 
 function rankUp() {
+  sfxRankUp();
   const drop=Math.floor(Math.random()*70000+10000); playerRank=Math.max(4,playerRank-drop); playerWins++;
   renderLeaderboard();
   const el=document.getElementById('lb-rank'); el.classList.remove('rankup'); void el.offsetWidth; el.classList.add('rankup');
@@ -694,7 +695,7 @@ function renderItemCard(item) {
 function buyItem(id) {
   const item=ITEMS.find(i=>i.id===id); if(!item||saveData.owned[id]) return;
   if((saveData.currencies[item.c]??0)<item.p) return;
-  saveData.currencies[item.c]-=item.p; saveData.owned[id]=true; writeSave(); renderShop(); applyEffectCSS();
+  saveData.currencies[item.c]-=item.p; saveData.owned[id]=true; writeSave(); renderShop(); applyEffectCSS(); sfxBuy();
 }
 function toggleItem(id) {
   if(!saveData.owned[id]) return;
@@ -718,7 +719,7 @@ function buyPack(currency, amount, usd) {
   document.getElementById('pDetail').textContent='';
   purchasePopup.classList.add('show');
   clearTimeout(purchaseTimer);
-  setTimeout(()=>{ document.getElementById('pStatus').textContent='✅ Purchase Successful!'; document.getElementById('pDetail').textContent=`$${usd} charged · +${amount.toLocaleString()} ${v.icon} ${v.name} added!`; saveData.currencies[currency]=(saveData.currencies[currency]??0)+amount; writeSave(); updateWallet(); renderShop(); },900);
+  setTimeout(()=>{ document.getElementById('pStatus').textContent='✅ Purchase Successful!'; document.getElementById('pDetail').textContent=`$${usd} charged · +${amount.toLocaleString()} ${v.icon} ${v.name} added!`; saveData.currencies[currency]=(saveData.currencies[currency]??0)+amount; writeSave(); updateWallet(); renderShop(); sfxBuy(); },900);
   purchaseTimer=setTimeout(()=>purchasePopup.classList.remove('show'),2900);
 }
 
@@ -779,7 +780,8 @@ function spawnNotification() {
   el.className = 'notif-popup';
   el.innerHTML = `<div class="notif-icon">${n.icon}</div><div class="notif-text"><div class="notif-title">${n.title}</div><div class="notif-body">${n.body}</div></div><button class="notif-close">✕</button>`;
   document.getElementById('notif-stack').appendChild(el);
-  el.querySelector('.notif-close').addEventListener('click',()=>{ el.classList.add('notif-out'); setTimeout(()=>el.remove(),380); });
+  sfxNotif();
+  el.querySelector('.notif-close').addEventListener('click',()=>{ sfxClick(); el.classList.add('notif-out'); setTimeout(()=>el.remove(),380); });
   setTimeout(()=>{ if(el.isConnected){ el.classList.add('notif-out'); setTimeout(()=>el.remove(),380); } }, 5500);
 }
 
@@ -798,7 +800,7 @@ document.getElementById('cookie-decline').addEventListener('click',()=>{
 // ─────────────────────────────────────────────────────────────────────────────
 let afkIdleFrames=0, afkOverlayActive=false, afkCountdownVal=30, afkCountdownIv=null;
 function resetAfk(){ afkIdleFrames=0; if(afkOverlayActive) dismissAfkOverlay(); }
-function showAfkOverlay(){ afkOverlayActive=true; afkCountdownVal=30; const o=document.getElementById('afkOverlay'); o.style.display='flex'; document.getElementById('afkCountdown').textContent=30; clearInterval(afkCountdownIv); afkCountdownIv=setInterval(()=>{ afkCountdownVal--; document.getElementById('afkCountdown').textContent=afkCountdownVal; if(afkCountdownVal<=0){ dismissAfkOverlay(); afkIdleFrames=0; } },1000); }
+function showAfkOverlay(){ sfxAFK(); afkOverlayActive=true; afkCountdownVal=30; const o=document.getElementById('afkOverlay'); o.style.display='flex'; document.getElementById('afkCountdown').textContent=30; clearInterval(afkCountdownIv); afkCountdownIv=setInterval(()=>{ afkCountdownVal--; document.getElementById('afkCountdown').textContent=afkCountdownVal; if(afkCountdownVal<=0){ dismissAfkOverlay(); afkIdleFrames=0; } },1000); }
 function dismissAfkOverlay(){ afkOverlayActive=false; document.getElementById('afkOverlay').style.display='none'; clearInterval(afkCountdownIv); }
 document.addEventListener('mousemove', resetAfk);
 document.addEventListener('keydown', resetAfk);
@@ -835,7 +837,7 @@ function renderPongbot() {
   opts.innerHTML = '';
   (pbState.opts||[]).forEach(o=>{
     const b=document.createElement('button'); b.className='pb-opt'; b.textContent=o.label;
-    b.addEventListener('click',()=>{ if(!o.next){closePongbot();}else{pbState=o.next;renderPongbot();} });
+    b.addEventListener('click',()=>{ sfxClick(); if(!o.next){closePongbot();}else{pbState=o.next;renderPongbot();} });
     opts.appendChild(b);
   });
 }
@@ -879,7 +881,7 @@ function drawRetention(){
 // Flash Sale
 // ─────────────────────────────────────────────────────────────────────────────
 let flashSaleCountdown=120, flashSaleIv=null, flashSaleSpawnFrame=3200, flashSaleActive=false;
-function showFlashSale(){ flashSaleActive=true; flashSaleCountdown=120; document.getElementById('flashSale').style.display='block'; document.getElementById('flashCountdown').textContent=120; clearInterval(flashSaleIv); flashSaleIv=setInterval(()=>{ flashSaleCountdown--; document.getElementById('flashCountdown').textContent=flashSaleCountdown; if(flashSaleCountdown<=0) dismissFlashSale(); },1000); }
+function showFlashSale(){ sfxFlashSale(); flashSaleActive=true; flashSaleCountdown=120; document.getElementById('flashSale').style.display='block'; document.getElementById('flashCountdown').textContent=120; clearInterval(flashSaleIv); flashSaleIv=setInterval(()=>{ flashSaleCountdown--; document.getElementById('flashCountdown').textContent=flashSaleCountdown; if(flashSaleCountdown<=0) dismissFlashSale(); },1000); }
 function dismissFlashSale(){ flashSaleActive=false; document.getElementById('flashSale').style.display='none'; clearInterval(flashSaleIv); flashSaleSpawnFrame=frame+7000+Math.floor(Math.random()*3000); }
 document.getElementById('flash-close').addEventListener('click', dismissFlashSale);
 document.getElementById('flash-buy-btn').addEventListener('click',()=>{ dismissFlashSale(); buyPack('coins',100,'0.59'); });
@@ -902,11 +904,11 @@ const SPIN_REWARDS=[
 document.getElementById('spinWin-close').addEventListener('click',()=>{ document.getElementById('spinWin').style.display='none'; spinWinSpawnFrame=frame+8000+Math.floor(Math.random()*4000); });
 document.getElementById('spin-btn').addEventListener('click',()=>{
   if(spinUsed) return;
-  spinUsed=true;
+  spinUsed=true; sfxSpin();
   const result=SPIN_REWARDS[Math.floor(Math.random()*SPIN_REWARDS.length)];
   let spins=0; const iv=setInterval(()=>{
     document.getElementById('spin-wheel').textContent=SPIN_SLOTS[Math.floor(Math.random()*SPIN_SLOTS.length)];
-    spins++; if(spins>18){ clearInterval(iv); document.getElementById('spin-wheel').textContent=SPIN_SLOTS[Math.floor(Math.random()*SPIN_SLOTS.length)]; document.getElementById('spin-result').textContent=result.msg; if(result.c){ saveData.currencies[result.c]=(saveData.currencies[result.c]??0)+result.a; writeSave(); updateWallet(); } document.getElementById('spin-btn').textContent='SPIN AGAIN (+$1.99)'; }
+    spins++; if(spins>18){ clearInterval(iv); document.getElementById('spin-wheel').textContent=SPIN_SLOTS[Math.floor(Math.random()*SPIN_SLOTS.length)]; document.getElementById('spin-result').textContent=result.msg; if(result.c){ saveData.currencies[result.c]=(saveData.currencies[result.c]??0)+result.a; writeSave(); updateWallet(); sfxSpinWin(); } else { sfxSpinLose(); } document.getElementById('spin-btn').textContent='SPIN AGAIN (+$1.99)'; }
   },80);
 });
 
@@ -939,6 +941,115 @@ const PING_MSGS=['⚠️ CONNECTION UNSTABLE — 847ms ping','⚠️ HIGH LATENC
 let pingTimer=0, nextPingFrame=700+Math.floor(Math.random()*600);
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Audio System (Web Audio API — no external files)
+// ─────────────────────────────────────────────────────────────────────────────
+let actx = null;
+function getAC() {
+  if (!actx) try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+  if (actx && actx.state === 'suspended') actx.resume();
+  return actx;
+}
+// Unlock on first interaction
+document.addEventListener('pointerdown', getAC, {once:true});
+document.addEventListener('keydown',     getAC, {once:true});
+
+// Tiny helper: one oscillator burst
+function _osc(type, freq, vol, start, dur, freqEnd, endFreq) {
+  const c=getAC(); if(!c)return;
+  const o=c.createOscillator(), g=c.createGain();
+  o.connect(g); g.connect(c.destination);
+  o.type=type; o.frequency.setValueAtTime(freq, start);
+  if(freqEnd!==undefined) o.frequency.exponentialRampToValueAtTime(freqEnd, start+dur);
+  g.gain.setValueAtTime(vol, start);
+  g.gain.exponentialRampToValueAtTime(0.001, start+dur);
+  o.start(start); o.stop(start+dur+0.01);
+}
+
+function sfxPaddleHit() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  _osc('sine',   220, 0.32, t,      0.04, 500);
+  _osc('sine',   500, 0.20, t+0.04, 0.12, 160);
+}
+function sfxCoin() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  [523,659,784].forEach((f,i)=>_osc('square',f,0.11,t+i*0.07,0.1));
+}
+function sfxGem() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  [784,988,1175,1568].forEach((f,i)=>_osc('sine',f,0.09,t+i*0.06,0.1));
+}
+function sfxScore() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  [523,659,784,659,1047].forEach((f,i)=>_osc('square',f,0.13,t+i*0.09,0.16));
+}
+function sfxOppScore() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  [440,330,220].forEach((f,i)=>_osc('sawtooth',f,0.11,t+i*0.13,0.16));
+}
+function sfxRankUp() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  [523,659,784,659,1047,784,1047].forEach((f,i)=>_osc('square',f,0.1,t+i*0.07,0.12));
+}
+function sfxBuy() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  _osc('square',  880, 0.12, t,      0.06, 1320);
+  _osc('triangle',1500,0.10, t+0.08, 0.28, 2200);
+}
+function sfxNotif() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  _osc('sine',880, 0.07, t,    0.1);
+  _osc('sine',1100,0.07, t+0.1,0.1);
+}
+function sfxAdPopup() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  _osc('square',400,0.10,t,    0.09,300);
+  _osc('square',400,0.10,t+0.12,0.09,300);
+}
+function sfxFlashSale() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  [0,0.1,0.2,0.3].forEach((d,i)=>_osc('sawtooth',i%2?660:880,0.1,t+d,0.09));
+}
+function sfxSpin() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  _osc('sawtooth',80,0.13,t,1.0,1200);
+}
+function sfxSpinWin() {
+  const c=getAC(); if(!c)return; sfxGem(); setTimeout(sfxScore,180);
+}
+function sfxSpinLose() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  _osc('sawtooth',300,0.1,t,0.5,80);
+}
+function sfxClick() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  _osc('sine',600,0.07,t,0.05,380);
+}
+function sfxMeow() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  // Carrier + vibrato mod for cat-like waver
+  const osc=c.createOscillator(), g=c.createGain();
+  const mod=c.createOscillator(), mg=c.createGain();
+  mod.connect(mg); mg.connect(osc.frequency);
+  osc.connect(g); g.connect(c.destination);
+  osc.type='sawtooth';
+  osc.frequency.setValueAtTime(300,t);
+  osc.frequency.linearRampToValueAtTime(500,t+0.09);
+  osc.frequency.linearRampToValueAtTime(420,t+0.22);
+  osc.frequency.linearRampToValueAtTime(260,t+0.50);
+  mod.type='sine'; mod.frequency.value=7; mg.gain.value=20;
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(0.22,t+0.06);
+  g.gain.setValueAtTime(0.22,t+0.22);
+  g.gain.exponentialRampToValueAtTime(0.001,t+0.55);
+  mod.start(t); mod.stop(t+0.56); osc.start(t); osc.stop(t+0.56);
+}
+function sfxAFK() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  [0,0.2,0.4].forEach(d=>_osc('square',440,0.1,t+d,0.15,440));
+}
+let nextMeowFrame = 300 + Math.floor(Math.random()*360);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Ad Popup System
 // ─────────────────────────────────────────────────────────────────────────────
 const AD_TEMPLATES=[
@@ -952,6 +1063,7 @@ let activeAds=[], dragState=null, nextAdFrame=1200+Math.floor(Math.random()*1200
 
 function spawnAd() {
   if(activeAds.length>=2)return;
+  sfxAdPopup();
   const t=AD_TEMPLATES[Math.floor(Math.random()*AD_TEMPLATES.length)];
   const wrap=document.getElementById('wrap'), ww=wrap.offsetWidth, wh=wrap.offsetHeight;
   const popup=document.createElement('div');
@@ -993,8 +1105,10 @@ function checkHitEffect(ns) {
   if(prevBallX>680&&bx<prevBallX&&bx>400&&by>py-20&&by<py+PADDLE_H+20){
     const pos=toCanvas(bx,by);
     hit={on:true,timer:90,x:pos.x,y:pos.y,text:HIT_TEXTS[Math.floor(Math.random()*HIT_TEXTS.length)]};
+    sfxPaddleHit();
     // Earn: +1 coin, 5% chance +1 dust
     saveData.currencies.coins=(saveData.currencies.coins??0)+1;
+    sfxCoin();
     if(Math.random()<0.05){ saveData.currencies.dust=(saveData.currencies.dust??0)+1; }
     if(saveData.active.shake_alert) shakeTimer=18;
     writeSave(); updateWallet();
@@ -1004,12 +1118,13 @@ function checkHitEffect(ns) {
 
 function checkScoreEffect(scores) {
   if(scores.p2>prevScores.p2){
-    currentStreak++; spawnScoreEffect(true); rankUp();
+    currentStreak++; spawnScoreEffect(true); rankUp(); sfxScore();
     saveData.currencies.gems=(saveData.currencies.gems??0)+10;
+    sfxGem();
     if(currentStreak>=2) saveData.currencies.blaze=(saveData.currencies.blaze??0)+3;
     writeSave(); updateWallet();
   }
-  if(scores.p1>prevScores.p1){ currentStreak=0; spawnScoreEffect(false); }
+  if(scores.p1>prevScores.p1){ currentStreak=0; spawnScoreEffect(false); sfxOppScore(); }
   prevScores={...scores};
 }
 
@@ -1166,6 +1281,9 @@ function updateAmbient(){
 
   // Spin to win
   if(gameActive&&frame>=spinWinSpawnFrame&&document.getElementById('spinWin').style.display!=='block'){ spinUsed=false; document.getElementById('spin-btn').textContent='SPIN NOW!'; document.getElementById('spin-result').textContent=''; document.getElementById('spin-wheel').textContent='🎰'; document.getElementById('spinWin').style.display='block'; spinWinSpawnFrame=frame+9999999; }
+
+  // Cat companion meow
+  if(saveData.active.companion && gameActive && frame >= nextMeowFrame){ sfxMeow(); nextMeowFrame=frame+240+Math.floor(Math.random()*360); }
 
   // Retention canvas
   drawRetention();
