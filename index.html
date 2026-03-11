@@ -654,7 +654,7 @@ renderLeaderboard();
 let shopTab='items', purchaseTimer=null;
 
 function openShop()  { shopModal.classList.add('open');    renderShop(); }
-function closeShop() { shopModal.classList.remove('open'); }
+function closeShop() { sfxWindowsError(); shopModal.classList.remove('open'); }
 
 document.querySelectorAll('.stab').forEach(btn=>btn.addEventListener('click',()=>{ shopTab=btn.dataset.tab; document.querySelectorAll('.stab').forEach(b=>b.classList.toggle('active',b.dataset.tab===shopTab)); renderShop(); }));
 
@@ -781,7 +781,7 @@ function spawnNotification() {
   el.innerHTML = `<div class="notif-icon">${n.icon}</div><div class="notif-text"><div class="notif-title">${n.title}</div><div class="notif-body">${n.body}</div></div><button class="notif-close">✕</button>`;
   document.getElementById('notif-stack').appendChild(el);
   sfxNotif();
-  el.querySelector('.notif-close').addEventListener('click',()=>{ sfxClick(); el.classList.add('notif-out'); setTimeout(()=>el.remove(),380); });
+  el.querySelector('.notif-close').addEventListener('click',()=>{ sfxWindowsError(); el.classList.add('notif-out'); setTimeout(()=>el.remove(),380); });
   setTimeout(()=>{ if(el.isConnected){ el.classList.add('notif-out'); setTimeout(()=>el.remove(),380); } }, 5500);
 }
 
@@ -789,8 +789,9 @@ function spawnNotification() {
 // Cookie Consent
 // ─────────────────────────────────────────────────────────────────────────────
 let cookieRespawnTimer = 0;
-document.getElementById('cookie-accept').addEventListener('click',()=>{ document.getElementById('cookieBanner').style.display='none'; cookieRespawnTimer=1800; });
+document.getElementById('cookie-accept').addEventListener('click',()=>{ sfxWindowsError(); document.getElementById('cookieBanner').style.display='none'; cookieRespawnTimer=1800; });
 document.getElementById('cookie-decline').addEventListener('click',()=>{
+  sfxWindowsError();
   const b = document.getElementById('cookieBanner');
   b.querySelector('span').textContent = '⚠️ You must accept cookies to continue playing. This is non-negotiable. Please reconsider.';
 });
@@ -805,7 +806,7 @@ function dismissAfkOverlay(){ afkOverlayActive=false; document.getElementById('a
 document.addEventListener('mousemove', resetAfk);
 document.addEventListener('keydown', resetAfk);
 document.addEventListener('touchstart', resetAfk);
-document.getElementById('afk-btn').addEventListener('click', resetAfk);
+document.getElementById('afk-btn').addEventListener('click', ()=>{ sfxWindowsError(); resetAfk(); });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PongBot Chatbot
@@ -842,7 +843,7 @@ function renderPongbot() {
   });
 }
 function showPongbot(){ pbState=PONGBOT_TREE; document.getElementById('pongbot').style.display='block'; renderPongbot(); }
-function closePongbot(){ document.getElementById('pongbot').style.display='none'; }
+function closePongbot(){ sfxWindowsError(); document.getElementById('pongbot').style.display='none'; }
 document.getElementById('pongbot-close').addEventListener('click', closePongbot);
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -852,6 +853,7 @@ const retCanvas = document.getElementById('retentionCanvas');
 const retCtx    = retCanvas ? retCanvas.getContext('2d') : null;
 let retFrame = 0;
 document.getElementById('retention-close').addEventListener('click',()=>{
+  sfxWindowsError();
   const rc=document.getElementById('retention-corner'), wrap=document.getElementById('wrap');
   const ww=wrap.offsetWidth, wh=wrap.offsetHeight;
   const ew=rc.offsetWidth||Math.round(ww*0.19), eh=rc.offsetHeight||Math.round(wh*0.22);
@@ -882,7 +884,7 @@ function drawRetention(){
 // ─────────────────────────────────────────────────────────────────────────────
 let flashSaleCountdown=120, flashSaleIv=null, flashSaleSpawnFrame=3200, flashSaleActive=false;
 function showFlashSale(){ sfxFlashSale(); flashSaleActive=true; flashSaleCountdown=120; document.getElementById('flashSale').style.display='block'; document.getElementById('flashCountdown').textContent=120; clearInterval(flashSaleIv); flashSaleIv=setInterval(()=>{ flashSaleCountdown--; document.getElementById('flashCountdown').textContent=flashSaleCountdown; if(flashSaleCountdown<=0) dismissFlashSale(); },1000); }
-function dismissFlashSale(){ flashSaleActive=false; document.getElementById('flashSale').style.display='none'; clearInterval(flashSaleIv); flashSaleSpawnFrame=frame+7000+Math.floor(Math.random()*3000); }
+function dismissFlashSale(){ sfxWindowsError(); flashSaleActive=false; document.getElementById('flashSale').style.display='none'; clearInterval(flashSaleIv); flashSaleSpawnFrame=frame+7000+Math.floor(Math.random()*3000); }
 document.getElementById('flash-close').addEventListener('click', dismissFlashSale);
 document.getElementById('flash-buy-btn').addEventListener('click',()=>{ dismissFlashSale(); buyPack('coins',100,'0.59'); });
 
@@ -901,7 +903,7 @@ const SPIN_REWARDS=[
   {msg:'FREE GIFT: +100 🪙!', c:'coins', a:100},
   {msg:'SORRY — Try again!', c:null,    a:0},
 ];
-document.getElementById('spinWin-close').addEventListener('click',()=>{ document.getElementById('spinWin').style.display='none'; spinWinSpawnFrame=frame+8000+Math.floor(Math.random()*4000); });
+document.getElementById('spinWin-close').addEventListener('click',()=>{ sfxWindowsError(); document.getElementById('spinWin').style.display='none'; spinWinSpawnFrame=frame+8000+Math.floor(Math.random()*4000); });
 document.getElementById('spin-btn').addEventListener('click',()=>{
   if(spinUsed) return;
   spinUsed=true; sfxSpin();
@@ -1002,8 +1004,18 @@ function sfxNotif() {
 }
 function sfxAdPopup() {
   const c=getAC(); if(!c)return; const t=c.currentTime;
-  _osc('square',400,0.10,t,    0.09,300);
-  _osc('square',400,0.10,t+0.12,0.09,300);
+  _osc('square',400,0.22,t,    0.09,300);
+  _osc('square',400,0.22,t+0.12,0.09,300);
+}
+function sfxWindowsError() {
+  const c=getAC(); if(!c)return; const t=c.currentTime;
+  // Two-hit descending "ba-DUM" like Windows critical stop
+  _osc('sine', 800, 0.22, t,      0.22);
+  _osc('sine',1200, 0.08, t,      0.12);
+  _osc('square',820,0.04, t,      0.04);  // hard transient click
+  _osc('sine', 600, 0.18, t+0.26, 0.26);
+  _osc('sine', 900, 0.05, t+0.26, 0.16);
+  _osc('square',620,0.03, t+0.26, 0.04);  // hard transient click
 }
 function sfxFlashSale() {
   const c=getAC(); if(!c)return; const t=c.currentTime;
@@ -1074,8 +1086,8 @@ function spawnAd() {
   popup.innerHTML=`<div class="ad-titlebar"><span class="ad-title-text">${t.title}</span><div class="ad-controls"><button class="ad-btn">_</button><button class="ad-btn ad-close-btn">✕</button></div></div><div class="ad-body">${t.body}</div>`;
   wrap.appendChild(popup); activeAds.push(popup);
   if(t.style==='game'){const p=popup.querySelector('.install-pct');let pct=12;const iv=setInterval(()=>{if(!popup.isConnected){clearInterval(iv);return;}pct=Math.min(99,pct+Math.floor(Math.random()*4+1));p.textContent=pct<99?`Downloading... ${pct}%`:'Complete! Installing...';},700);}
-  popup.querySelector('.ad-close-btn').addEventListener('click',(e)=>{e.stopPropagation();removeAd(popup);});
-  const ab=popup.querySelector('.ad-action'); if(ab)ab.addEventListener('click',(e)=>{e.stopPropagation();removeAd(popup);if(Math.random()>.4)setTimeout(spawnAd,600);});
+  popup.querySelector('.ad-close-btn').addEventListener('click',(e)=>{e.stopPropagation();sfxWindowsError();removeAd(popup);});
+  const ab=popup.querySelector('.ad-action'); if(ab)ab.addEventListener('click',(e)=>{e.stopPropagation();sfxWindowsError();removeAd(popup);if(Math.random()>.4)setTimeout(spawnAd,600);});
   popup.querySelector('.ad-titlebar').addEventListener('mousedown',(e)=>{if(e.target.classList.contains('ad-btn'))return;const r=popup.getBoundingClientRect();dragState={popup,ox:e.clientX-r.left,oy:e.clientY-r.top};e.preventDefault();});
 }
 function removeAd(p){p.remove();activeAds=activeAds.filter(a=>a!==p);}
