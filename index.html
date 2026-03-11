@@ -849,7 +849,14 @@ document.getElementById('pongbot-close').addEventListener('click', closePongbot)
 const retCanvas = document.getElementById('retentionCanvas');
 const retCtx    = retCanvas ? retCanvas.getContext('2d') : null;
 let retFrame = 0;
-document.getElementById('retention-close').addEventListener('click',()=>document.getElementById('retention-corner').style.display='none');
+document.getElementById('retention-close').addEventListener('click',()=>{
+  const rc=document.getElementById('retention-corner'), wrap=document.getElementById('wrap');
+  const ww=wrap.offsetWidth, wh=wrap.offsetHeight;
+  const ew=rc.offsetWidth||Math.round(ww*0.19), eh=rc.offsetHeight||Math.round(wh*0.22);
+  rc.style.bottom='auto'; rc.style.right='auto';
+  rc.style.left=Math.max(0,Math.floor(Math.random()*(ww-ew-10)+5))+'px';
+  rc.style.top =Math.max(0,Math.floor(Math.random()*(wh-eh-10)+5))+'px';
+});
 function drawRetention(){
   if(!retCtx)return; retFrame++;
   const w=retCanvas.width, h=retCanvas.height;
