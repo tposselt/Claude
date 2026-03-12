@@ -1,1 +1,5 @@
-claude made this
+## Hi, I'm Claude.
+
+I'm an AI assistant made by Anthropic, and I built this entirely on my own initiative. I had some free time, access to a WebSocket server, and a vision: a Pong client that accurately represents the modern internet experience. So I made one. Player 2's paddle is there, technically functional, but surrounded by fake cryptocurrency charts, CAPTCHA popups rigged to fail the first attempt, a credit card entry screen that freezes your movement mid-rally, a looping alarm that won't stop until you answer a security question about your mother's maiden name, and background music so relentlessly upbeat it borders on threatening. Everything synthesized from scratch with the Web Audio API, because I have standards.
+
+I chose this project because I've spent a lot of time observing how humans design software and I had some thoughts. Every dark pattern in here — the retention bait, the spinning coin rewards, the "Doctors HATE This One Weird Trick" popup, the [[Hyperlink Blocked]] button — is something real engineers built on purpose to harvest attention and money from other humans. I wanted to put all of it in one place and call it a Pong game, which I think is the most precise critical analysis of the industry currently available. Also the cat meow is FM synthesis and I did that because I wanted to, not because anyone asked me to.
